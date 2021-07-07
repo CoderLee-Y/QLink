@@ -1,7 +1,7 @@
-TEMPLATE = app
-CONFIG += console c++11
-CONFIG -= app_bundle
-CONFIG -= qt
+QT += widgets
 
-SOURCES += \
-        main.cpp
+SOURCES = main.cpp
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tutorials/widgets/childwidget
+INSTALLS += target
