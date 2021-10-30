@@ -4,31 +4,8 @@ statusUI::statusUI(QVBoxLayout *hand)
 {
     layout = hand;
     initSideBar();
-    layout->update();
-}
-
-void statusUI::addText(QString str){
-    QLabel *text = new QLabel;
-    text->setText(str);
-    layout->update();
-}
-
-void statusUI::setInfo(QString info){
-    info_c->setText(info);
-    layout->update();
-}
-
-void statusUI::setSolNum(int s){
-    QString sp;
-    sp.setNum(s);
-    sol_num_c->setText(sp);
-    layout->update();
-}
-
-void statusUI::setTime(int s){
-    QString sp;
-    sp.setNum(s);
-    time_c->setText(sp);
+    layout->setMargin(5);
+    layout->setAlignment(Qt::AlignCenter);
     layout->update();
 }
 
@@ -64,3 +41,30 @@ void statusUI::initSideBar(){
     time_c = new QLabel();
     layout->addWidget(time_c);
 }
+
+
+void statusUI::addText(QString str){
+    QLabel *text = new QLabel;
+    text->setText(str);
+    layout->update();
+}
+
+void statusUI::setInfo(QString info){
+    info_c->setText(info);
+    layout->update();
+}
+
+void statusUI::setSolNum(int s){
+    QString sp;
+    sp.setNum(s);
+    sol_num_c->setText(sp);
+    layout->update();
+}
+
+void statusUI::setTime(int s){
+    QString sp;
+    sp.setNum(s);
+    time_c->setText(sp);
+    layout->update();
+}
+

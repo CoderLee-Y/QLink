@@ -1,9 +1,6 @@
 #ifndef ENUM_H
 #define ENUM_H
 
-#include <QColor>
-#include "qblock.h"
-
 /**
  * @brief The block_t enum
  * NOTE: 4 also indicates 3, and 4 -> 3, only 3 -> 4
@@ -45,8 +42,7 @@ enum movingAction_t {
  */
 enum gameStatus_t {
     unstarted,
-    singleMode,
-    doubleMode,
+    running,
     gameOver,
     paused
 };
@@ -67,8 +63,10 @@ enum role_status_t {
     hasHint
 };
 
-
-
+enum gameMode_t {
+    onePlayer,
+    twoPlayer
+};
 
 
 #endif // ENUM_H

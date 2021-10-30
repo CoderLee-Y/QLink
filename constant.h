@@ -7,6 +7,7 @@
 #define WINDOWLEN 1280
 #define WINDOWHEIGHT 720
 
+#define WINDOWTITLE "QLink"
 #define SCOREMSG "Your Score: "
 #define TIMEMSG "Your Time: "
 #define PLAYER1MSG "Player One"
@@ -14,8 +15,15 @@
 #define INFOMSG "INFO AREA"
 #define INITINFOMSG "Enjoy your game!"
 #define ELIMATE_SUCCESS "Success"
-#define NOT_SAME_GRP "The two block \n aren't in the \n same block group."
-#define OVER_BROKEN_LINE "You can't link \n these two blocks within \n 2 broken lines"
+#define NOT_SAME_GRP "The two block \naren't in the \nsame block\ngroup."
+#define OVER_BROKEN_LINE "You can't link \nthese two\nblocks within \n2 broken lines"
 #define SOL_NUM_MSG "Sol Number: "
+#define HINT_END "Hint Time end"
+#define PAUSE "Paused"
+#define START "Start Now!"
+#define HINT_ADDED "Hint Time Added!"
+#define HINT_BEGIN "Hint Begins"
+#define GAME_OVER "GAME OVER"
+
 
 #endif // CONSTANT_H

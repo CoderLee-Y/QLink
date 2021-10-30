@@ -41,7 +41,8 @@ private:
 
     QVBoxLayout *rightBarLayout;
 
-    // Not suitable name: vertical and horizanal blocks number here
+    // Not suitable name: vertical and horizanal
+    // blocks number here
     int windowLength, windowHeight;
 
     QVector<QVector<BLOCK_STRUCT>> blockMap;
@@ -58,6 +59,8 @@ private:
     int blockType;
 
     gameStatus_t globalStatus;
+
+    gameMode_t gameMode;
 
     int gameTime1, gameTime2, hintTime1, hintTime2;
 
@@ -139,9 +142,17 @@ private:
 
     void updateHint();
 
+    void pauseGame();
+
+    void startGame();
+
+    void endGame();
+
 public:
 
     QLinkWindow(QWidget *parent = nullptr, int length = 10, int height = 10);
+
+    void setGameMode(gameMode_t s);
 
 // event monitor function here
 protected:
@@ -158,6 +169,9 @@ private slots:
     void handleHintTimer();
 
     void handleLineTimer();
+
+signals:
+    void goToMenu(QWidget *);
 
 };
 

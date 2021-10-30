@@ -16,18 +16,15 @@ QBlock::QBlock(int len, int height, QWidget *parent) : QLabel(parent) {
 void QBlock::paintEvent(QPaintEvent *event) {
     QString SS = "background: " + blockColor.name() + "; " +
                  "color: " + wordColor.name();
-    QSize size;
-    size.setWidth(blockWidth);
-    size.setHeight(blockHeight);
-    this->setFixedSize(size);
-    this->setMargin(2);
+    setBlockSize(0);
+    this->setAlignment(Qt::AlignCenter);
     switch (status) {
         case OCCUPIED: {
             this->setText("");
             break;
         }
         case ACTIVATED: {
-            this->setText("AC");
+            setBlockSize(1);
             break;
         }
         case PROPS: {
@@ -59,6 +56,23 @@ void QBlock::paintEvent(QPaintEvent *event) {
 
     this->setStyleSheet(SS);
     QLabel::paintEvent(event);
+}
+
+void QBlock::setBlockSize(int idx){
+    blockSize = idx;
+    QSize size;
+    if(idx == 0)
+    {
+        size.setWidth(blockWidth);
+        size.setHeight(blockHeight);
+    }
+    else{
+        size.setWidth(blockWidth * 0.98);
+        size.setHeight(blockHeight * 0.98);
+
+    }
+    this->setFixedSize(size);
+    this->setMargin(2);
 }
 
 

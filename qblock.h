@@ -8,6 +8,7 @@
 #include <QTextBlock>
 #include <QSizePolicy>
 #include <iostream>
+
 #include "constant.h"
 #include "enum.h"
 
@@ -28,7 +29,13 @@ private:
 
     prop_t prop_type;
 
+private:
+
+    void setBlockSize(int idx);
+
 public:
+    int blockSize;
+
     QBlock(int len, int height, QWidget *parent);
 
     void paintEvent(QPaintEvent *event) override;

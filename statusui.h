@@ -5,10 +5,15 @@
 #include <QLabel>
 #include "constant.h"
 
+/**
+ * @brief The statusUI class, side bar of my game
+ */
 class statusUI
 {
 private:
     QVBoxLayout *layout;
+
+    QVector<QVBoxLayout *> parts;
 
     void initSideBar();
 
