@@ -1,16 +1,15 @@
 #include "role.h"
 
-Role::Role(int xBound, int yBound,
-           int x0, int y0)
+Role::Role(QLinkWindow *qLink, int xBound, int yBound,
+           int x0, int y0, QVBoxLayout* sideBar): qLinkWindow(qLink), activated(nullptr),
+    xIndex(x0), yIndex(y0), score(0), xBoundary(xBound), yBoundary(yBound),
+    canRollBack(false), hasActivated(false), status(normal),
+    roleStatusBar(sideBar)
 {
-    activated = nullptr;
-    xIndex = x0, yIndex = y0;
-    xBoundary = xBound, yBoundary = yBound;
-    xLastIndex = x0, yLastIndex = y0;
-    score = 0;
-    canRollBack = false;
-    hasActivated = false;
-    status = normal;
+    board1 = new statusUI(roleStatusBar);
+    board1->setSolNum(qLinkWindow->isAnySol());
+    board1->setTime(qLinkWindow->gameTime1);
+    qLinkWindow->setBlockStatus(x0, y0, PLAYER, 0);
 }
 
 /**
@@ -21,8 +20,7 @@ Role::Role(int xBound, int yBound,
  */
 direction_t Role::move(direction_t dir){
     if(canRollBack){
-        // to solve some rare bugs
-        Sleep(100);
+        Sleep(10);
     }
     switch (dir) {
     case DIR_UP:{

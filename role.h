@@ -4,12 +4,14 @@
 #include "qblock.h"
 #include "QLink.h"
 #include "enum.h"
+#include "statusui.h"
 
 class QLinkWindow;
 
 class Role
 {
-friend class QLinkWindow;
+    friend class QLinkWindow;
+
 private:
     int playerID;
 
@@ -19,6 +21,8 @@ private:
 
     QBlock *activated;
 
+    QLinkWindow *qLinkWindow;
+
     int xBoundary, yBoundary;
 
     int score;
@@ -27,12 +31,16 @@ private:
 
     role_status_t status;
 
+    QVBoxLayout* roleStatusBar;
+
+    statusUI *board1;
+
 private:
     void quickBackUp();
 
 public:
-    Role(int xBound, int yBound,
-            int x0 = 0, int y0 = 0);
+    Role(QLinkWindow *, int xBound, int yBound,
+            int x0 = 0, int y0 = 0, QVBoxLayout* = nullptr);
 
     direction_t move(direction_t dir);
 
@@ -45,8 +53,6 @@ public:
     void cancelBackup();
 
     void setActivated(QBlock *act);
-
-
 };
 
 #endif // ROLE_H

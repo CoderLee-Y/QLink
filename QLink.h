@@ -33,14 +33,16 @@ class QLinkWindow : public QWidget {
 
     friend class Role;
 
-
+// for layout and sub-widget
 private:
     QWidget window;
 
     QGridLayout *layout;
 
-    QVBoxLayout *rightBarLayout;
+    QVBoxLayout *rightBarLayout, *leftBarLayout;
 
+// meta data to store
+private:
     // Not suitable name: vertical and horizanal
     // blocks number here
     int windowLength, windowHeight;
@@ -53,16 +55,13 @@ private:
 
     Role *role1, *role2;
 
-    // May move to a Role's place now
-    statusUI *board1;
-
     int blockType;
 
     gameStatus_t globalStatus;
 
     gameMode_t gameMode;
 
-    int gameTime1, gameTime2, hintTime1, hintTime2;
+    int gameTime1, hintTime1;
 
     lineMask *lines;
 
@@ -78,6 +77,8 @@ private:
 
     int isInHint, hintTime;
 
+    QVector<Role *> roles;
+
 // necessary timer
 private:
 
@@ -87,12 +88,10 @@ private:
 
     QTimer *HintTimer;
 
-// tool function here
+// procedure
 private:
 
     void setColorSet();
-
-    movingAction_t movingAction(Role *role, int &, int &);
 
     void initBlocks();
 
@@ -100,11 +99,40 @@ private:
 
     void handleConflictBlocks();
 
+    void drawBar();
+
+    int isAnySol();
+
+    void addProps();
+
+    void dropProps();
+
+    void handleHint();
+
+    void handleReshuffle();
+
+    void handlePlusSecond();
+
+    void updateHint();
+
+    void pauseGame();
+
+    void startGame();
+
+    void endGame();
+
+    void stopHint();
+
+// function
+private:
+
+    movingAction_t movingAction(Role *role, int &, int &);
+
     void setBlockStatus(int i,int j, block_t status, int group);
 
     void moveRole(int roleID, direction_t dir);
 
-    bool isLeagalElimate(int x1, int y1, int x2,
+    bool isLeagalElimate(Role *, int x1, int y1, int x2,
                          int y2, bool changeInfo, QVector < QBlock * > &paths);
 
     QVector<direction_t> AStarFindDirection(int x1, int y1, int x2, int y2);
@@ -114,23 +142,9 @@ private:
 
     bool isLegalPoint(int x, int y);
 
-    void drawBar();
-
-    int isAnySol();
-
     bool canReachBorder(int x, int y, QMap<QPair<int, int>, bool> vis);
 
-    void addProps();
-
-    void dropProps();
-
     void handleProps(prop_t prop);
-
-    void handleHint();
-
-    void handleReshuffle();
-
-    void handlePlusSecond();
 
     void shuffleBlocks(int);
 
@@ -139,14 +153,6 @@ private:
     void setTime4Line(int lineNum, int msec);
 
     QLine getLine(QBlock *, QBlock *);
-
-    void updateHint();
-
-    void pauseGame();
-
-    void startGame();
-
-    void endGame();
 
 public:
 
@@ -171,6 +177,7 @@ private slots:
     void handleLineTimer();
 
 signals:
+
     void goToMenu(QWidget *);
 
 };

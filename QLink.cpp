@@ -10,54 +10,56 @@ QLinkWindow::QLinkWindow(QWidget *parent, int length, int height) :
         QWidget(parent), gameTime1(10), isInHint(0),
         keyPressedTimer(new QTimer(this)),
         PlayerTimer(new QTimer(this)), HintTimer(new QTimer(this)) {
-    // TODO: if length and height is illegal!?
+
     this->windowLength = length;
     this->windowHeight = height;
-
-    role1 = new Role(length, height);
-    role2 = new Role(length, height, length - 1, height - 1);
     blockType = std::min((int) (length * height / 10), 10);
 
     setColorSet();
     initBlocks();
     handleConflictBlocks();
-    setBlockStatus(0, 0, PLAYER, 0);
 
-    // init layout
-    QHBoxLayout *basicLayout = new QHBoxLayout(parent);
+    initTimers();
+    globalStatus = unstarted;
+}
+
+void QLinkWindow::setGameMode(gameMode_t s) {
+    gameMode = s;
+
+    QHBoxLayout *basicLayout = new QHBoxLayout();
     rightBarLayout = new QVBoxLayout();
     layout = new QGridLayout();
 
     lines = new lineMask();
     lines->setFixedHeight(WINDOWHEIGHT);
 
-    for (int i = 0; i < height; ++i)
-        for (int j = 0; j < length; ++j)
+
+    for (int i = 0; i < windowHeight; ++i)
+        for (int j = 0; j < windowLength; ++j)
             layout->addWidget(blockMap[i][j].block, i, j, 1, 1, Qt::AlignCenter);
 
+
+
+    if(s == twoPlayer)
+    {
+        leftBarLayout = new QVBoxLayout();
+        basicLayout->addLayout(leftBarLayout);
+    }
     layout->addWidget(lines, 0, 0, -1, -1);
     basicLayout->addLayout(layout);
     basicLayout->addLayout(rightBarLayout);
-
     this->setLayout(basicLayout);
-    initTimers();
-    globalStatus = unstarted;
 
-    // init side bar next
-    board1 = new statusUI(rightBarLayout);
-    board1->setSolNum(isAnySol());
-    board1->setTime(gameTime1);
+    role1 = new Role(this, windowLength, windowHeight, 0, 0, rightBarLayout);
+    roles.push_back(role1);
+    if (s == onePlayer) {
+
+    } else if (s == twoPlayer) {
+        role2 = new Role(this, windowLength, windowHeight,
+                         windowLength - 1, windowHeight - 1, leftBarLayout);
+        roles.push_back(role2);
+    }
     this->setWindowTitle(WINDOWTITLE);
-}
-
-void QLinkWindow::setGameMode(gameMode_t s){
-    gameMode = s;
-    if(s == onePlayer){
-
-    }
-    else if(s == twoPlayer){
-
-    }
 }
 
 void QLinkWindow::initTimers() {
@@ -76,24 +78,37 @@ void QLinkWindow::initTimers() {
     this->grabKeyboard();
 }
 
+/**
+ * @brief QLinkWindow::stopHint
+ * stop hint timer and remove hint from line mask
+ */
+void QLinkWindow::stopHint(){
+    HintTimer->stop();
+    for(auto &m: roles){
+        m->board1->setInfo(HINT_END);
+    }
+    for (auto &lineNum: linesOfHint) {
+        lines->removeLines(lineNum);
+    }
+    lines->update();
+    isInHint = false;
+}
+
+/**
+ * @brief QLinkWindow::handleHintTimer
+ * handle Hint Timer
+ */
 void QLinkWindow::handleHintTimer() {
     --hintTime;
-    if (hintTime == 0) {
-        HintTimer->stop();
-        board1->setInfo(HINT_END);
-        for (auto &lineNum: linesOfHint) {
-            lines->removeLines(lineNum);
-        }
-        lines->update();
-        isInHint = false;
-    }
+    if (hintTime == 0)
+        stopHint();
 }
 
 
 /**
  * @brief QLinkWindow::handleConflictBlocks
  * make sure no same group block beside
- * // TODO: Bugs - if grp number <= 3?
+ * // BUG: if grp number <= 3?
  */
 void QLinkWindow::handleConflictBlocks() {
     for (int i = 1; i < windowHeight - 1; ++i) {
@@ -122,7 +137,7 @@ void QLinkWindow::handleReshuffle() {
     for (int i = 1; i < windowHeight - 1; ++i)
         for (int j = 1; j < windowLength - 1; ++j) {
             if (blockMap[i][j].type == OCCUPIED ||
-                    blockMap[i][j].type == ACTIVATED)
+                blockMap[i][j].type == ACTIVATED)
                 ++tol;
         }
 
@@ -139,7 +154,10 @@ void QLinkWindow::handleReshuffle() {
                 }
             }
         out:
-        board1->setSolNum(isAnySol());
+        for(auto &m: roles){
+            m->board1->setSolNum(isAnySol());
+        }
+
     } while (isPlayerStuck);
 
     for (int i = 1; i < windowHeight - 1; ++i)
@@ -260,56 +278,76 @@ void QLinkWindow::setColorSet() {
  */
 void QLinkWindow::keyPressEvent(QKeyEvent *event) {
     switch (globalStatus) {
-    case unstarted: {
-        if(event->key() == Qt::Key_Enter){
-            startGame();
+        case unstarted: {
+            if (event->key() == Qt::Key_Enter) {
+                startGame();
+            }
+            break;
         }
-        break;
-    }
-    case running:{
-        switch (event->key()) {
-            case Qt::Key_S: {
+        case running: {
+            switch (event->key()) {
+                case Qt::Key_S: {
+                    keyPressed.push_back(DIR_DOWN);
+                    break;
+                }
+                case Qt::Key_A: {
+                    keyPressed.push_back(DIR_LEFT);
+                    break;
+                }
+                case Qt::Key_W: {
+                    keyPressed.push_back(DIR_UP);
+                    break;
+                }
+                case Qt::Key_D: {
+                    keyPressed.push_back(DIR_RIGHT);
+                    break;
+                }
+                case Qt::Key_Escape: {
+                    pauseGame();
+                    break;
+                }
+            case Qt::Key_Down: {
                 keyPressed.push_back(DIR_DOWN);
+                keyPressed.push_back(UNDEF);
                 break;
             }
-            case Qt::Key_A: {
+            case Qt::Key_Left: {
                 keyPressed.push_back(DIR_LEFT);
+                keyPressed.push_back(UNDEF);
                 break;
             }
-            case Qt::Key_W: {
+            case Qt::Key_Up: {
                 keyPressed.push_back(DIR_UP);
+                keyPressed.push_back(UNDEF);
                 break;
             }
-            case Qt::Key_D: {
+            case Qt::Key_Right: {
                 keyPressed.push_back(DIR_RIGHT);
+                keyPressed.push_back(UNDEF);
                 break;
             }
-            case Qt::Key_Escape: {
-                pauseGame();
-                break;
             }
+            break;
         }
-        break;
-    }
-    case paused:{
-        if(event->key() == Qt::Key_Enter){
-            startGame();
+        case paused: {
+            if (event->key() == Qt::Key_Enter) {
+                startGame();
+            }
+            break;
         }
-        break;
-    }
-    case gameOver:{
+        case gameOver: {
 
-    }
+        }
     }
 
 }
 
-void QLinkWindow::endGame(){
+void QLinkWindow::endGame() {
     QMessageBox::information(this, "QLink", "Game over.");
     globalStatus = gameOver;
     PlayerTimer->stop();
     keyPressedTimer->stop();
-    if(isInHint){
+    if (isInHint) {
         HintTimer->stop();
         for (auto &lineNum: linesOfHint) {
             lines->removeLines(lineNum);
@@ -317,27 +355,32 @@ void QLinkWindow::endGame(){
         lines->update();
         isInHint = false;
     }
-    board1->setInfo(GAME_OVER);
-
+    for(auto &m: roles){
+        m->board1->setInfo(GAME_OVER);
+    }
     emit goToMenu(this);
 }
 
 void QLinkWindow::pauseGame() {
     globalStatus = paused;
     PlayerTimer->stop();
-    if(isInHint){
+    if (isInHint) {
         HintTimer->stop();
     }
-    board1->setInfo(PAUSE);
+    for(auto &m: roles){
+        m->board1->setInfo(PAUSE);
+    }
 }
 
-void QLinkWindow::startGame(){
+void QLinkWindow::startGame() {
     globalStatus = running;
     PlayerTimer->start();
-    if(isInHint){
+    if (isInHint) {
         HintTimer->start();
     }
-    board1->setInfo(START);
+    for(auto &m: roles){
+        m->board1->setInfo(START);
+    }
 }
 
 /**
@@ -347,12 +390,12 @@ void QLinkWindow::startGame(){
  * Main logic of moving a role
  */
 void QLinkWindow::moveRole(int roleID, direction_t dir) {
-    Role *role = roleID == 1 ? role1 : role2;
+    Role *role = (roleID == 1) ? role1 : role2;
     if (role->move(dir) != UNDEF) {
         return;
     } else {
         int roleX, roleY;
-        movingAction_t result = movingAction(role, roleX, roleY);
+        movingAction(role, roleX, roleY);
     }
 }
 
@@ -372,12 +415,14 @@ movingAction_t QLinkWindow::movingAction(Role *role, int &x, int &y) {
             int yActivated = role->activated->yIndex;
             role->rollback();
             setBlockStatus(x, y, ACTIVATED, blockMap[x][y].group);
-            if (isLeagalElimate(xActivated, yActivated, x, y, true, noUse)) {
+            if (isLeagalElimate(role, xActivated, yActivated, x, y, true, noUse)) {
                 setBlockStatus(x, y, EMPTY, 0);
                 setBlockStatus(xActivated, yActivated, EMPTY, 0);
                 role->plusScore(10);
                 role->hasActivated = false;
-                board1->setSolNum(isAnySol());
+                for(auto &m: roles){
+                    m->board1->setSolNum(isAnySol());
+                }
                 return ELIMATE;
             } else {
                 setBlockStatus(xActivated, yActivated, OCCUPIED,
@@ -424,11 +469,15 @@ void QLinkWindow::handleProps(prop_t prop) {
 void QLinkWindow::handleHint() {
     if (isInHint) {
         hintTime += 10;
-        board1->setInfo(HINT_ADDED);
+        for(auto &m: roles){
+            m->board1->setInfo(HINT_ADDED);
+        }
     } else {
         isInHint = true;
         hintTime = 10;
-        board1->setInfo(HINT_BEGIN);
+        for(auto &m: roles){
+            m->board1->setInfo(HINT_BEGIN);
+        }
         updateHint();
         HintTimer->start();
     }
@@ -450,22 +499,36 @@ void QLinkWindow::updateHint() {
 
 void QLinkWindow::handlePlusSecond() {
     gameTime1 += 30;
-    board1->setTime(gameTime1);
+    for(auto &m: roles){
+        m->board1->setTime(gameTime1);
+    }
 }
 
 void QLinkWindow::handleKeyPressed() {
     while (!keyPressed.empty()) {
         direction_t dir = keyPressed.front();
         keyPressed.pop_front();
-        moveRole(1, dir);
+        if(!keyPressed.empty() && keyPressed.front() == UNDEF){
+            keyPressed.pop_front();
+            moveRole(2, dir);
+        }
+        else{
+            moveRole(1, dir);
+        }
     }
 
-    layout->update();
+    this->update();
 }
 
+/**
+ * @brief QLinkWindow::handlePlayerTimer
+ * count time for player
+ */
 void QLinkWindow::handlePlayerTimer() {
     --gameTime1;
-    board1->setTime(gameTime1);
+    for(auto &m: roles){
+        m->board1->setTime(gameTime1);
+    }
     if (gameTime1 == 0) {
         endGame();
     }
@@ -474,6 +537,10 @@ void QLinkWindow::handlePlayerTimer() {
     addProps();
 }
 
+/**
+ * @brief QLinkWindow::dropProps
+ * elimate the prop for every 5 secs (in avg)
+ */
 void QLinkWindow::dropProps() {
     for (int i = 0; i < windowHeight; ++i)
         for (int j = 0; j < windowLength; ++j) {
@@ -486,6 +553,10 @@ void QLinkWindow::dropProps() {
         }
 }
 
+/**
+ * @brief QLinkWindow::addProps
+ * modify probability here
+ */
 void QLinkWindow::addProps() {
     for (int i = 0; i < windowHeight; ++i)
         for (int j = 0; j < windowLength; ++j) {
@@ -496,9 +567,9 @@ void QLinkWindow::addProps() {
                 prop_t prop_to_use;
                 if (whichProp > 10)
                     continue;
-                else if (whichProp > 3) {
+                else if (whichProp > 5) {
                     prop_to_use = plusSec;
-                } else if (whichProp > 2) {
+                } else if (whichProp > 3) {
                     prop_to_use = reshuffle;
                 } else {
                     prop_to_use = hint;
@@ -506,9 +577,7 @@ void QLinkWindow::addProps() {
                 blockMap[i][j].type = PROPS;
                 blockMap[i][j].block->status = PROPS;
                 blockMap[i][j].block->prop_type = prop_to_use;
-                layout->update();
-                // now print this block and handle corresponding function
-
+                this->update();
             }
         }
 }
@@ -520,25 +589,25 @@ void QLinkWindow::addProps() {
  * @param changeInfo if true, will change info board at the same time
  * @return return is these two point a pair of legal elimate.
  */
-bool QLinkWindow::isLeagalElimate(int x1, int y1, int x2, int y2,
+bool QLinkWindow::isLeagalElimate(Role *who, int x1, int y1, int x2, int y2,
                                   bool changeInfo, QVector<QBlock *> &path) {
     int ret;
     path.clear();
     if (blockMap[x1][y1].group == blockMap[x2][y2].group) {
         ret = findLine(x1, y1, x2, y2, UNDEF, path);
         if (changeInfo) {
+            assert(who != nullptr);
             if (ret == 1) {
                 // draw Answers and set time to unshow them
-
                 setTime4Line(drawAnswers(path), 500);
-                board1->setInfo(ELIMATE_SUCCESS);
+                who->board1->setInfo(ELIMATE_SUCCESS);
             } else
-                board1->setInfo(OVER_BROKEN_LINE);
+                who->board1->setInfo(OVER_BROKEN_LINE);
         }
     } else {
         ret = false;
         if (changeInfo)
-            board1->setInfo(NOT_SAME_GRP);
+            who->board1->setInfo(NOT_SAME_GRP);
     }
 
     return ret;
@@ -783,7 +852,7 @@ int QLinkWindow::isAnySol() {
         for (int i = 0; i < members.size(); ++i) {
             for (int j = i + 1; j < members.size(); ++j) {
                 QVector < QBlock * > ansPath;
-                if (isLeagalElimate(members[i].first, members[i].second,
+                if (isLeagalElimate(nullptr, members[i].first, members[i].second,
                                     members[j].first, members[j].second,
                                     false, ansPath)) {
 
