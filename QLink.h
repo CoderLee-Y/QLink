@@ -101,8 +101,6 @@ private:
 
     void handleConflictBlocks();
 
-    void drawBar();
-
     int isAnySol();
 
     void addProps();
@@ -126,6 +124,8 @@ private:
     void stopHint();
 
     void removePlayer();
+
+    void load2Disk(QString name);
 
 // function
 private:

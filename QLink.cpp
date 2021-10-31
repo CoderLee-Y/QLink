@@ -100,6 +100,10 @@ void QLinkWindow::setGameMode(gameMode_t s) {
                          windowLength - 1, windowHeight - 1, leftBarLayout);
         roles.push_back(role2);
     }
+
+    for(auto &m: roles){
+        m->board1->setSolNum(isAnySol());
+    }
     globalStatus = unstarted;
     gameMode = s;
 }
@@ -152,7 +156,6 @@ void QLinkWindow::handleHintTimer() {
         stopHint();
 }
 
-
 /**
  * @brief QLinkWindow::handleConflictBlocks
  * make sure no same group block beside
@@ -188,7 +191,6 @@ void QLinkWindow::handleReshuffle() {
                 blockMap[i][j].type == ACTIVATED)
                 ++tol;
         }
-
     bool isPlayerStuck = true;
     do {
         shuffleBlocks(tol);
@@ -205,7 +207,6 @@ void QLinkWindow::handleReshuffle() {
         for(auto &m: roles){
             m->board1->setSolNum(isAnySol());
         }
-
     } while (isPlayerStuck);
 
     for (int i = 1; i < windowHeight - 1; ++i)
@@ -249,7 +250,6 @@ void QLinkWindow::initBlocks() {
 void QLinkWindow::shuffleBlocks(int concret_num) {
     int tol = 0, threshold = 90;
     if (concret_num != -1) {
-        // 均匀的排布重新排列的东西
         threshold = ((double) concret_num / ((windowHeight - 2) * (windowLength - 2))) * 100;
     }
     for (int i = 0; i < windowHeight; ++i) {
@@ -283,7 +283,6 @@ void QLinkWindow::shuffleBlocks(int concret_num) {
                         return;
                 }
             }
-
         }
     }
     if (concret_num > tol) {
@@ -383,11 +382,8 @@ void QLinkWindow::keyPressEvent(QKeyEvent *event) {
             }
             break;
         }
-        case gameOver: {
-
-        }
+        case gameOver: {}
     }
-
 }
 
 void QLinkWindow::endGame() {
@@ -463,6 +459,7 @@ movingAction_t QLinkWindow::movingAction(Role *role, int &x, int &y) {
             int xActivated = role->activated->xIndex;
             int yActivated = role->activated->yIndex;
             role->rollback();
+
             setBlockStatus(x, y, ACTIVATED, blockMap[x][y].group);
             if (isLeagalElimate(role, xActivated, yActivated, x, y, true, noUse)) {
                 setBlockStatus(x, y, EMPTY, 0);
@@ -566,7 +563,6 @@ void QLinkWindow::handleKeyPressed() {
             moveRole(1, dir);
         }
     }
-
     this->update();
 }
 
@@ -644,11 +640,10 @@ bool QLinkWindow::isLeagalElimate(Role *who, int x1, int y1, int x2, int y2,
     int ret;
     path.clear();
     if (blockMap[x1][y1].group == blockMap[x2][y2].group) {
+        // change legal elimate method: find in list
         ret = findLine(x1, y1, x2, y2, UNDEF, path);
         if (changeInfo) {
-            assert(who != nullptr);
             if (ret == 1) {
-                // draw Answers and set time to unshow them
                 setTime4Line(drawAnswers(path), 500);
                 who->board1->setInfo(ELIMATE_SUCCESS);
             } else
@@ -848,9 +843,6 @@ int QLinkWindow::findLine(int x1, int y1, int x2, int y2, direction_t past_dir,
     return num;
 }
 
-void QLinkWindow::drawBar() {
-}
-
 /**
  * @brief QLinkWindow::canReachBorder, FIND a point can be reached By player
  * if can reach column 0 / row 0, player can reach here.
@@ -921,4 +913,21 @@ int QLinkWindow::isAnySol() {
         updateHint();
     }
     return ans;
+}
+
+bool QLinkWindow::load2Disk(QString name){
+    for(auto &q: name){
+        if(!((q >= 'a' && q <= 'z') || (q >= 'A' && q <= 'Z') ||
+                (q >= '0' && q <= '9')))
+            return false;
+    }
+
+   name.push_back(".qlf");
+   if(QFile::exists(name))
+       return false;
+
+   QFile file(name);
+   QString buffer = "";
+
+   return true;
 }

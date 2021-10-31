@@ -6,9 +6,11 @@ Role::Role(QLinkWindow *qLink, int xBound, int yBound,
     canRollBack(false), hasActivated(false), status(normal),
     roleStatusBar(sideBar)
 {
-    board1 = new statusUI(roleStatusBar);
+    int player = (x0 == 0 && y0 == 0);
+    board1 = new statusUI(roleStatusBar, player);
     board1->setSolNum(qLinkWindow->isAnySol());
     board1->setTime(qLinkWindow->gameTime1);
+    board1->setScore(score);
     qLinkWindow->setBlockStatus(x0, y0, PLAYER, 0);
 }
 
@@ -71,6 +73,7 @@ direction_t Role::move(direction_t dir){
 
 void Role::plusScore(int score){
     this->score += score;
+    board1->setScore(this->score);
 }
 
 void Role::getPosition(int &x, int &y){

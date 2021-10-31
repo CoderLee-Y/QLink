@@ -15,6 +15,8 @@ private:
 
     QVector<QVBoxLayout *> parts;
 
+    int playerNum;
+
     void initSideBar();
 
     QLabel *info_c;
@@ -29,8 +31,10 @@ private:
 
     QLabel *sol_num_c;
 
+    QLabel *score_t;
+
 public:
-    statusUI(QVBoxLayout *hand);
+    statusUI(QVBoxLayout *hand, int num);
 
     void addText(QString str);
 
@@ -39,6 +43,10 @@ public:
     void setSolNum(int s);
 
     void setTime(int s);
+
+    void setScore(int score);
+
+    void setFont(QLabel *q, int size);
 };
 
 #endif // STATUSUI_H
