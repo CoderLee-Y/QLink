@@ -28,6 +28,13 @@ public:
     int addLines(QVector<QLine> &);
 
     void removeLines(int idx);
+
+public:
+
+    friend QDataStream &operator<<(QDataStream & , const lineMask &);
+
+    friend QDataStream &operator>>(QDataStream & , lineMask &);
+
 };
 
 #endif // LINEMASK_H

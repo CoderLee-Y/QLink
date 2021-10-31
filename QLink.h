@@ -14,7 +14,9 @@
 #include "statusui.h"
 #include "linemask.h"
 
-struct BLOCK_STRUCT {
+class BLOCK_STRUCT {
+
+public:
 
     block_t type;
 
@@ -23,6 +25,11 @@ struct BLOCK_STRUCT {
     int group;
 
     QBlock *block;
+
+    friend QDataStream &operator<<(QDataStream & , const BLOCK_STRUCT &);
+
+    friend QDataStream &operator>>(QDataStream & , BLOCK_STRUCT &);
+
 
 };
 
@@ -125,7 +132,9 @@ private:
 
     void removePlayer();
 
-    void load2Disk(QString name);
+    bool load2Disk(QString name);
+
+    bool loadFromDisk(QString name);
 
 // function
 private:
@@ -160,11 +169,17 @@ private:
 
     void removeAllFrom(QLayout *layout);
 
+    QString fromBlockToStr(BLOCK_STRUCT b);
+
+    QString fromRoleToStr(Role *b);
+
 public:
 
     QLinkWindow(QWidget *parent = nullptr, int length = 10, int height = 10);
 
     void setGameMode(gameMode_t s);
+
+    QBlock* getBlock(int x, int y);
 
 // event monitor function here
 protected:
@@ -185,6 +200,13 @@ private slots:
 signals:
 
     void goToMenu(QWidget *);
+
+public:
+
+    friend QDataStream &operator<<(QDataStream & , const QLinkWindow &);
+
+    friend QDataStream &operator>>(QDataStream & , QLinkWindow &);
+
 
 };
 

@@ -1,17 +1,22 @@
 #include "role.h"
 
 Role::Role(QLinkWindow *qLink, int xBound, int yBound,
-           int x0, int y0, QVBoxLayout* sideBar): qLinkWindow(qLink), activated(nullptr),
-    xIndex(x0), yIndex(y0), score(0), xBoundary(xBound), yBoundary(yBound),
+           int x0, int y0, QVBoxLayout* sideBar): qLinkWindow(qLink),
+    activated(nullptr), xIndex(x0), yIndex(y0), score(0),
+    xBoundary(xBound), yBoundary(yBound),
     canRollBack(false), hasActivated(false), status(normal),
     roleStatusBar(sideBar)
 {
-    int player = (x0 == 0 && y0 == 0);
-    board1 = new statusUI(roleStatusBar, player);
+    playerID = (x0 == 0 && y0 == 0);
+    init();
+}
+
+void Role::init(){
+    board1 = new statusUI(roleStatusBar, playerID);
     board1->setSolNum(qLinkWindow->isAnySol());
     board1->setTime(qLinkWindow->gameTime1);
     board1->setScore(score);
-    qLinkWindow->setBlockStatus(x0, y0, PLAYER, 0);
+    qLinkWindow->setBlockStatus(xIndex, yIndex, PLAYER, 0);
 }
 
 /**
@@ -107,4 +112,40 @@ void Role::cancelBackup(){
 void Role::setActivated(QBlock *act){
     activated = act;
     hasActivated = true;
+}
+
+QDataStream &operator<<(QDataStream &output, const Role &r){
+
+    output << r.playerID << r.xIndex << r.yIndex \
+           << r.activated->xIndex << r.activated->yIndex \
+           << r.xBoundary << r.yBoundary \
+           << r.xLastIndex << r.yLastIndex \
+           << r.score << r.canRollBack << r.hasActivated \
+           << r.status;
+
+    return output;
+}
+
+/**
+ * @brief operator >> no need constructor again
+ * @param input
+ * @param r
+ * @return
+ */
+QDataStream &operator>>(QDataStream &input , Role &r){
+
+    int x, y;
+    input >> r.playerID >> r.xIndex >> r.yIndex \
+           >> x >> y \
+           >> r.xBoundary >> r.yBoundary \
+           >> r.xLastIndex >> r.yLastIndex \
+           >> r.score >> r.canRollBack >> r.hasActivated \
+           >> r.status;
+
+    if(r.hasActivated)
+        r.activated = r.qLinkWindow->getBlock(x, y);
+
+    // rebuild statusUI
+    r.init();
+    return input;
 }

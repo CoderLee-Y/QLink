@@ -25,6 +25,7 @@ private:
 
     int blockWidth, blockHeight;
 
+public:
     int xIndex, yIndex;
 
     prop_t prop_type;
@@ -38,6 +39,8 @@ public:
 
     QBlock(int len, int height, QWidget *parent);
 
+    QBlock();
+
     void paintEvent(QPaintEvent *event) override;
 
     void setColor(QColor color, QColor wordColor);
@@ -45,6 +48,12 @@ public:
     void setStatus(block_t status);
 
     void setIndex(int x, int y);
+
+public:
+
+    friend QDataStream &operator<<(QDataStream & , const QBlock &);
+
+    friend QDataStream &operator>>(QDataStream & , QBlock &);
 
 };
 

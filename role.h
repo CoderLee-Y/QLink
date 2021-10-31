@@ -53,6 +53,12 @@ public:
     void cancelBackup();
 
     void setActivated(QBlock *act);
+
+    void init();
+
+    friend QDataStream &operator<<(QDataStream & , const Role &);
+
+    friend QDataStream &operator>>(QDataStream & , Role &);
 };
 
 #endif // ROLE_H

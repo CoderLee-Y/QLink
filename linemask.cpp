@@ -25,3 +25,16 @@ int lineMask::addLines(QVector <QLine> &q) {
 void lineMask::removeLines(int idx) {
     seen[idx] = false;
 }
+
+QDataStream &operator<<(QDataStream &output, const lineMask &lm){
+
+    output << lm.lineGroup << lm.seen << lm.num;
+    return output;
+}
+
+QDataStream &operator>>(QDataStream &input, lineMask &lm){
+
+    input >> lm.lineGroup >> lm.seen >> lm.num;
+    return input;
+}
+

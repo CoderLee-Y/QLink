@@ -13,6 +13,11 @@ QBlock::QBlock(int len, int height, QWidget *parent) : QLabel(parent) {
     blockColor = QColor(255, 255, 255);
 }
 
+QBlock::QBlock(){
+    blockColor = QColor(255, 255, 255);
+    status = EMPTY;
+}
+
 void QBlock::paintEvent(QPaintEvent *event) {
     QString SS = "background: " + blockColor.name() + "; " +
                  "color: " + wordColor.name();
@@ -88,4 +93,20 @@ void QBlock::setStatus(block_t status) {
 void QBlock::setIndex(int x, int y) {
     this->xIndex = x;
     this->yIndex = y;
+}
+
+QDataStream &operator<<(QDataStream &output, const QBlock &b){
+
+    output << b.status << b.xIndex << b.yIndex \
+           << b.blockSize << b.prop_type << b.wordColor \
+           << b.blockColor << b.blockWidth << b.blockHeight;
+    return output;
+}
+
+QDataStream &operator>>(QDataStream &input, QBlock &b){
+
+    input >> b.status >> b.xIndex >> b.yIndex \
+           >> b.blockSize >> b.prop_type >> b.wordColor \
+           >> b.blockColor >> b.blockWidth >> b.blockHeight;;
+    return input;
 }
