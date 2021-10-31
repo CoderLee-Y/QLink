@@ -4,7 +4,7 @@ statusUI::statusUI(QVBoxLayout *hand)
 {
     layout = hand;
     initSideBar();
-    layout->setMargin(5);
+
     layout->setAlignment(Qt::AlignCenter);
     layout->update();
 }
@@ -12,30 +12,38 @@ statusUI::statusUI(QVBoxLayout *hand)
 void statusUI::initSideBar(){
     QLabel *playerInfo = new QLabel();
     playerInfo->setText(PLAYER1MSG);
+    playerInfo->setFixedSize(175, 30);
     layout->addWidget(playerInfo);
-
-    QLabel *info = new QLabel();
-    info->setText(INFOMSG);
-    layout->addWidget(info);
 
     info_c = new QLabel();
     info_c->setText(INITINFOMSG);
+    info_c->setFixedSize(175, 120);
+    QFont qf;
+    qf.setBold(true);
+    qf.setFamily("Microsoft YaHei");
+    qf.setPixelSize(20);
+
+    info_c->setFont(qf);
     layout->addWidget(info_c);
 
     QLabel *score = new QLabel();
     score->setText(SCOREMSG);
+    score->setFixedSize(175, 30);
     layout->addWidget(score);
 
     QLabel *sol_num = new QLabel();
     sol_num->setText(SOL_NUM_MSG);
+    sol_num->setFixedSize(175, 30);
     layout->addWidget(sol_num);
 
     sol_num_c = new QLabel();
     sol_num_c->setText("0");
+    sol_num_c->setFixedSize(175, 30);
     layout->addWidget(sol_num_c);
 
     QLabel *time_l = new QLabel();
     time_l->setText(TIMEMSG);
+    time_l->setFixedSize(175, 30);
     layout->addWidget(time_l);
 
     time_c = new QLabel();

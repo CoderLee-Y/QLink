@@ -7,7 +7,7 @@
  * @param height default 10 by 10
  */
 QLinkWindow::QLinkWindow(QWidget *parent, int length, int height) :
-        QWidget(parent), gameTime1(10), isInHint(0),
+        QWidget(parent), isInHint(0),
         keyPressedTimer(new QTimer(this)),
         PlayerTimer(new QTimer(this)), HintTimer(new QTimer(this)) {
 
@@ -16,50 +16,100 @@ QLinkWindow::QLinkWindow(QWidget *parent, int length, int height) :
     blockType = std::min((int) (length * height / 10), 10);
 
     setColorSet();
-    initBlocks();
-    handleConflictBlocks();
-
     initTimers();
+
     globalStatus = unstarted;
 }
 
-void QLinkWindow::setGameMode(gameMode_t s) {
-    gameMode = s;
+void QLinkWindow::removePlayer(){
+    for (int i = 0; i < windowHeight; ++i)
+        for (int j = 0; j < windowLength; ++j){
+            if(blockMap[i][j].type == PLAYER)
+                    setBlockStatus(i, j, EMPTY, 0);
+        }
 
-    QHBoxLayout *basicLayout = new QHBoxLayout();
+    for(auto &m: roles){
+        delete m;
+    }
+    roles.clear();
+}
+
+void QLinkWindow::dataClear(){
+    linesOfHint.clear();
+    keyPressed.clear();
+    timerList.clear();
+    linesOnBoard.clear();
+    hintTime1 = 0;
+    isInHint = false;
+    refAnswers.clear();
+    roles.clear();
+}
+
+void QLinkWindow::setGameMode(gameMode_t s) {
+    // not elegant at all!
+    dataClear();
+    if(globalStatus != unstarted)
+    {
+        removePlayer();
+        removeAllFrom(gridLayout);
+        removeAllFrom(rightBarLayout);
+        if(gameMode == twoPlayer)
+            removeAllFrom(leftBarLayout);
+        removeAllFrom(this->layout());
+    }
     rightBarLayout = new QVBoxLayout();
-    layout = new QGridLayout();
+    gridLayout = new QGridLayout();
+
+    initBlocks();
+    handleConflictBlocks();
+
+    keyPressedTimer->start();
+    gameTime1 = 10;
+
+    QHBoxLayout *basicLayout;
+    basicLayout =globalStatus == unstarted?
+                 new QHBoxLayout():(QHBoxLayout *)this->layout();
 
     lines = new lineMask();
     lines->setFixedHeight(WINDOWHEIGHT);
 
-
     for (int i = 0; i < windowHeight; ++i)
         for (int j = 0; j < windowLength; ++j)
-            layout->addWidget(blockMap[i][j].block, i, j, 1, 1, Qt::AlignCenter);
+            gridLayout->addWidget(blockMap[i][j].block, i, j, 1, 1, Qt::AlignCenter);
 
-
-
+    gridLayout->addWidget(lines, 0, 0, -1, -1);
     if(s == twoPlayer)
     {
         leftBarLayout = new QVBoxLayout();
         basicLayout->addLayout(leftBarLayout);
     }
-    layout->addWidget(lines, 0, 0, -1, -1);
-    basicLayout->addLayout(layout);
+
+    basicLayout->addLayout(gridLayout);
     basicLayout->addLayout(rightBarLayout);
-    this->setLayout(basicLayout);
+
+    if(globalStatus == unstarted)
+    {
+        this->setLayout(basicLayout);
+        this->setWindowTitle(WINDOWTITLE);
+    }
 
     role1 = new Role(this, windowLength, windowHeight, 0, 0, rightBarLayout);
     roles.push_back(role1);
-    if (s == onePlayer) {
-
-    } else if (s == twoPlayer) {
+    if (s == twoPlayer) {
         role2 = new Role(this, windowLength, windowHeight,
                          windowLength - 1, windowHeight - 1, leftBarLayout);
         roles.push_back(role2);
     }
-    this->setWindowTitle(WINDOWTITLE);
+    globalStatus = unstarted;
+    gameMode = s;
+}
+
+void QLinkWindow::removeAllFrom(QLayout *layout){
+    QLayoutItem *item;
+    while ((item = layout->takeAt(0))) {
+       delete item->widget();
+       delete item;
+    }
 }
 
 void QLinkWindow::initTimers() {
@@ -73,8 +123,6 @@ void QLinkWindow::initTimers() {
             this, &QLinkWindow::handlePlayerTimer);
     connect(HintTimer, &QTimer::timeout,
             this, &QLinkWindow::handleHintTimer);
-
-    keyPressedTimer->start();
     this->grabKeyboard();
 }
 
@@ -343,10 +391,11 @@ void QLinkWindow::keyPressEvent(QKeyEvent *event) {
 }
 
 void QLinkWindow::endGame() {
+    keyPressedTimer->stop();
     QMessageBox::information(this, "QLink", "Game over.");
     globalStatus = gameOver;
     PlayerTimer->stop();
-    keyPressedTimer->stop();
+
     if (isInHint) {
         HintTimer->stop();
         for (auto &lineNum: linesOfHint) {
@@ -510,7 +559,8 @@ void QLinkWindow::handleKeyPressed() {
         keyPressed.pop_front();
         if(!keyPressed.empty() && keyPressed.front() == UNDEF){
             keyPressed.pop_front();
-            moveRole(2, dir);
+            if(gameMode == twoPlayer)
+                moveRole(2, dir);
         }
         else{
             moveRole(1, dir);
@@ -651,11 +701,15 @@ int QLinkWindow::drawAnswers(QVector<QBlock *> &path) {
 }
 
 QLine QLinkWindow::getLine(QBlock *a, QBlock *b) {
-    auto itemA = layout->itemAtPosition(a->xIndex, a->yIndex);
-    auto itemB = layout->itemAtPosition(b->xIndex, b->yIndex);
+    auto itemA = gridLayout->itemAtPosition(a->xIndex, a->yIndex);
+    auto itemB = gridLayout->itemAtPosition(b->xIndex, b->yIndex);
 
     QLine ret(itemA->geometry().x(), itemA->geometry().y(),
               itemB->geometry().x(), itemB->geometry().y());
+    if(gameMode == twoPlayer){
+        ret.setLine(itemA->geometry().x() - 175, itemA->geometry().y(),
+                    itemB->geometry().x() - 175, itemB->geometry().y());
+    }
     return ret;
 }
 

@@ -33,11 +33,11 @@ class QLinkWindow : public QWidget {
 
     friend class Role;
 
-// for layout and sub-widget
+// for gridLayout and sub-widget
 private:
     QWidget window;
 
-    QGridLayout *layout;
+    QGridLayout *gridLayout;
 
     QVBoxLayout *rightBarLayout, *leftBarLayout;
 
@@ -93,6 +93,8 @@ private:
 
     void setColorSet();
 
+    void dataClear();
+
     void initBlocks();
 
     void initTimers();
@@ -122,6 +124,8 @@ private:
     void endGame();
 
     void stopHint();
+
+    void removePlayer();
 
 // function
 private:
@@ -153,6 +157,8 @@ private:
     void setTime4Line(int lineNum, int msec);
 
     QLine getLine(QBlock *, QBlock *);
+
+    void removeAllFrom(QLayout *layout);
 
 public:
 
