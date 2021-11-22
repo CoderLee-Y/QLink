@@ -1,13 +1,12 @@
 #include "menu.h"
 
-menu::menu(): QWidget()
+Menu::Menu(): QWidget()
 {
     QSize fixedSize;
     fixedSize.setHeight(WINDOWHEIGHT);
     fixedSize.setWidth(WINDOWLEN);
     setFixedSize(fixedSize);
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->setMargin(22);
 
     QLabel *label = new QLabel;
     QFont font;
@@ -27,7 +26,7 @@ menu::menu(): QWidget()
 
 }
 
-void menu::initBtn(QVBoxLayout *layout){
+void Menu::initBtn(QVBoxLayout *layout){
     QVector<QPushButton *> vec;
     QPushButton *singlePlayer = new QPushButton("1 Player");
     QPushButton *doublePlayer = new QPushButton("2 Player");
@@ -49,13 +48,13 @@ void menu::initBtn(QVBoxLayout *layout){
     }
 
     connect(singlePlayer, &QPushButton::clicked,
-            this, &menu::onClickSinglePlayer);
+            this, &Menu::onClickSinglePlayer);
     connect(doublePlayer, &QPushButton::clicked,
-            this, &menu::onClickDoublePlayer);
+            this, &Menu::onClickDoublePlayer);
     connect(load, &QPushButton::clicked,
-            this, &menu::onClickLoad);
+            this, &Menu::onClickLoad);
     connect(exit, &QPushButton::clicked,
-            this, &menu::onClickExit);
+            this, &Menu::onClickExit);
 
     layout->addWidget(singlePlayer, 0, Qt::AlignCenter);
     layout->addWidget(doublePlayer, 0, Qt::AlignCenter);
@@ -63,18 +62,31 @@ void menu::initBtn(QVBoxLayout *layout){
     layout->addWidget(exit, 0, Qt::AlignCenter);
 }
 
-void menu::onClickExit(){
+void Menu::onClickExit(){
     QApplication::quit();
 }
 
-void menu::onClickLoad(){
-    emit showLoad(this);
+void Menu::onClickLoad(){
+    bool success = false;
+
+    auto s = keyboardGrabber();
+    if(s != nullptr)
+        s->releaseKeyboard();
+
+    QString text = QInputDialog::getText(this,
+                   tr("Input Game name"), tr("The Game name set when saving"),
+                   QLineEdit::Normal, "Game Name", &success);
+
+    if(s != nullptr)
+        s->grabKeyboard();
+    if(!text.isEmpty() && success)
+        emit showLoad(this, text);
 }
 
-void menu::onClickDoublePlayer(){
+void Menu::onClickDoublePlayer(){
     emit showGame(this, twoPlayer);
 }
 
-void menu::onClickSinglePlayer(){
+void Menu::onClickSinglePlayer(){
     emit showGame(this, onePlayer);
 }

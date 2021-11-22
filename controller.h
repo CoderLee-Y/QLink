@@ -9,14 +9,14 @@
 #include <QTimer>
 #include <iostream>
 #include "enum.h"
-#include "QLink.h"
+#include "qlink.h"
 #include "menu.h"
 
-class controller: public QObject
+class Controller: public QObject
 {
     Q_OBJECT
 public:
-    controller();
+    Controller();
 
     void show();
 
@@ -24,15 +24,15 @@ private:
 
     QLinkWindow *qLinkWindow;
 
-    menu *menuWindow;
+    Menu *menuWindow;
 
 private slots:
 
-    void showGame(QWidget *from, gameMode_t s);
+    void showGame(QWidget *from, game_mode_t s);
 
     void showMenu(QWidget *from);
 
-    void showLoad(QWidget *from);
+    void showLoad(QWidget *from, QString text);
 
 private slots:
 

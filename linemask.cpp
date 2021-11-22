@@ -1,12 +1,12 @@
 #include "linemask.h"
 
-lineMask::lineMask() {
+LineMask::LineMask() {
     num = 0;
 }
 
-void lineMask::paintEvent(QPaintEvent *) {
+void LineMask::paintEvent(QPaintEvent *) {
     QPainter painter(this);
-    painter.setPen(QPen(Qt::red, 5));
+    painter.setPen(QPen(Qt::blue, 5));
 
     for (unsigned int i = 0; i < num; ++i) {
         if (seen[i])
@@ -14,7 +14,7 @@ void lineMask::paintEvent(QPaintEvent *) {
     }
 }
 
-int lineMask::addLines(QVector <QLine> &q) {
+int LineMask::addLines(QVector <QLine> &q) {
     lineGroup.push_back(q);
     seen.push_back(true);
     ++num;
@@ -22,19 +22,27 @@ int lineMask::addLines(QVector <QLine> &q) {
     return (lineGroup.size() - 1);
 }
 
-void lineMask::removeLines(int idx) {
+void LineMask::removeLines(int idx) {
     seen[idx] = false;
 }
 
-QDataStream &operator<<(QDataStream &output, const lineMask &lm){
+QDataStream &operator<<(QDataStream &output, const LineMask &lm) {
 
-    output << lm.lineGroup << lm.seen << lm.num;
+    output << lm.num;
+    assert(lm.num == lm.seen.size());
+    assert(lm.num == lm.lineGroup.size());
+    for (unsigned int i = 0; i < lm.num; ++i) {
+        output << lm.lineGroup[i] << lm.seen[i];
+    }
     return output;
 }
 
-QDataStream &operator>>(QDataStream &input, lineMask &lm){
+QDataStream &operator>>(QDataStream &input, LineMask &lm) {
 
-    input >> lm.lineGroup >> lm.seen >> lm.num;
+    input >> lm.num;
+    for (unsigned int i = 0; i < lm.num; ++i) {
+        input >> lm.lineGroup[i] >> lm.seen[i];
+    }
     return input;
 }
 

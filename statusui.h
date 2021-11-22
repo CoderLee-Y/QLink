@@ -8,7 +8,7 @@
 /**
  * @brief The statusUI class, side bar of my game
  */
-class statusUI
+class StatusUI
 {
 private:
     QVBoxLayout *layout;
@@ -34,7 +34,7 @@ private:
     QLabel *score_t;
 
 public:
-    statusUI(QVBoxLayout *hand, int num);
+    StatusUI(QVBoxLayout *hand, int num);
 
     void addText(QString str);
 

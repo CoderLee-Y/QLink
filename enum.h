@@ -27,7 +27,7 @@ enum direction_t {
 /**
  * @brief The moving action enum
  */
-enum movingAction_t {
+enum moving_action_t {
     NORMAL = 1,
     ACTIVATE = 2,
     REPLACE = 3,
@@ -40,7 +40,7 @@ enum movingAction_t {
  * @brief The gameStatus_t enum
  * Status of game
  */
-enum gameStatus_t {
+enum game_status_t {
     unstarted,
     running,
     gameOver,
@@ -63,7 +63,7 @@ enum role_status_t {
     hasHint
 };
 
-enum gameMode_t {
+enum game_mode_t {
     onePlayer,
     twoPlayer
 };

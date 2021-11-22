@@ -19,7 +19,7 @@
 #define OVER_BROKEN_LINE "You can't link \nthese two\nblocks within \n2 broken lines"
 #define SOL_NUM_MSG "Sol Number: "
 #define HINT_END "Hint Time end"
-#define PAUSE "Paused"
+#define PAUSE "Paused\nPress end to\nsave"
 #define START "Start Now!"
 #define HINT_ADDED "Hint Time Added!"
 #define HINT_BEGIN "Hint Begins"

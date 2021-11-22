@@ -10,7 +10,7 @@
 #include "qblock.h"
 
 
-class lineMask: public QFrame
+class LineMask: public QFrame
 {
 private:
 
@@ -23,7 +23,7 @@ private:
     unsigned int num;
 
 public:
-    lineMask();
+    LineMask();
 
     int addLines(QVector<QLine> &);
 
@@ -31,9 +31,9 @@ public:
 
 public:
 
-    friend QDataStream &operator<<(QDataStream & , const lineMask &);
+    friend QDataStream &operator<<(QDataStream & , const LineMask &);
 
-    friend QDataStream &operator>>(QDataStream & , lineMask &);
+    friend QDataStream &operator>>(QDataStream & , LineMask &);
 
 };
 

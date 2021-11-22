@@ -1,35 +1,42 @@
 #include "controller.h"
 
-controller::controller(){
+Controller::Controller(){
 
-    menuWindow = new menu();
+    menuWindow = new Menu();
     qLinkWindow = new QLinkWindow();
 
-    connect(menuWindow, (&menu::showLoad),
-            this, (&controller::showLoad));
-    connect(menuWindow, (&menu::showGame),
-            this, (&controller::showGame));
+    connect(menuWindow, (&Menu::showLoad),
+            this, (&Controller::showLoad));
+    connect(menuWindow, (&Menu::showGame),
+            this, (&Controller::showGame));
     connect(qLinkWindow, (&QLinkWindow::goToMenu),
-            this, (&controller::showMenu));
+            this, (&Controller::showMenu));
+
+    qLinkWindow->releaseKeyboard();
+    menuWindow->grabKeyboard();
 }
 
-void controller::show(){
+void Controller::show(){
     menuWindow->show();
 }
 
 
-void controller::showGame(QWidget *from, gameMode_t s){
+void Controller::showGame(QWidget *from, game_mode_t s){
+    qLinkWindow->grabKeyboard();
     qLinkWindow->setGameMode(s);
     from->hide();
     qLinkWindow->show();
 }
 
-void controller::showLoad(QWidget *from){
+void Controller::showLoad(QWidget *from, QString text){
     from->hide();
+    qLinkWindow->grabKeyboard();
+    qLinkWindow->startFromFile(text);
     qLinkWindow->show();
 }
 
-void controller::showMenu(QWidget *from){
+void Controller::showMenu(QWidget *from){
     from->hide();
+    qLinkWindow->releaseKeyboard();
     menuWindow->show();
 }

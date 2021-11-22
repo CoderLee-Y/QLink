@@ -8,10 +8,11 @@
 #include <QKeyEvent>
 #include <QTimer>
 #include <iostream>
+#include <QDataStream>
 #include "qblock.h"
 #include "enum.h"
-#include "role.h"
 #include "statusui.h"
+#include "role.h"
 #include "linemask.h"
 
 class BLOCK_STRUCT {
@@ -64,13 +65,13 @@ private:
 
     int blockType;
 
-    gameStatus_t globalStatus;
+    game_status_t globalStatus;
 
-    gameMode_t gameMode;
+    game_mode_t gameMode;
 
     int gameTime1, hintTime1;
 
-    lineMask *lines;
+    LineMask *lines;
 
     QQueue<int> linesOnBoard;
 
@@ -132,14 +133,14 @@ private:
 
     void removePlayer();
 
-    bool load2Disk(QString name);
+    void inputName();
 
-    bool loadFromDisk(QString name);
+    void clearAllAndRebuid();
 
 // function
 private:
 
-    movingAction_t movingAction(Role *role, int &, int &);
+    moving_action_t movingAction(Role *role, int &, int &);
 
     void setBlockStatus(int i,int j, block_t status, int group);
 
@@ -169,17 +170,21 @@ private:
 
     void removeAllFrom(QLayout *layout);
 
-    QString fromBlockToStr(BLOCK_STRUCT b);
+    bool load2Disk(QString name);
 
-    QString fromRoleToStr(Role *b);
+    bool loadFromDisk(QString name);
+
+    void setLayoutRebuild(game_mode_t, int);
 
 public:
 
     QLinkWindow(QWidget *parent = nullptr, int length = 10, int height = 10);
 
-    void setGameMode(gameMode_t s);
+    void setGameMode(game_mode_t s);
 
     QBlock* getBlock(int x, int y);
+
+    void startFromFile(QString fileName);
 
 // event monitor function here
 protected:
@@ -206,8 +211,8 @@ public:
     friend QDataStream &operator<<(QDataStream & , const QLinkWindow &);
 
     friend QDataStream &operator>>(QDataStream & , QLinkWindow &);
-
-
 };
 
+
 #endif // QLINK_H
+

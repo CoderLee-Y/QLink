@@ -1,4 +1,4 @@
-#include "QLink.h"
+#include "qlink.h"
 
 /**
  * @brief QLinkWindow::QLinkWindow
@@ -45,8 +45,8 @@ void QLinkWindow::dataClear() {
     roles.clear();
 }
 
-void QLinkWindow::setGameMode(gameMode_t s) {
-    // not elegant at all!
+
+void QLinkWindow::clearAllAndRebuid() {
     dataClear();
     if (globalStatus != unstarted) {
         removePlayer();
@@ -56,6 +56,7 @@ void QLinkWindow::setGameMode(gameMode_t s) {
             removeAllFrom(leftBarLayout);
         removeAllFrom(this->layout());
     }
+
     rightBarLayout = new QVBoxLayout();
     gridLayout = new QGridLayout();
 
@@ -64,18 +65,21 @@ void QLinkWindow::setGameMode(gameMode_t s) {
 
     keyPressedTimer->start();
     gameTime1 = 10;
+}
 
+void QLinkWindow::setLayoutRebuild(game_mode_t s, int q) {
     QHBoxLayout *basicLayout;
     basicLayout = globalStatus == unstarted ?
                   new QHBoxLayout() : (QHBoxLayout * )
     this->layout();
 
-    lines = new lineMask();
+    lines = new LineMask();
     lines->setFixedHeight(WINDOWHEIGHT);
 
     for (int i = 0; i < windowHeight; ++i)
         for (int j = 0; j < windowLength; ++j)
-            gridLayout->addWidget(blockMap[i][j].block, i, j, 1, 1, Qt::AlignCenter);
+            gridLayout->addWidget(blockMap[i][j].block,
+                                  i, j, 1, 1, Qt::AlignCenter);
 
     gridLayout->addWidget(lines, 0, 0, -1, -1);
     if (s == twoPlayer) {
@@ -91,12 +95,24 @@ void QLinkWindow::setGameMode(gameMode_t s) {
         this->setWindowTitle(WINDOWTITLE);
     }
 
-    role1 = new Role(this, windowLength, windowHeight, 0, 0, rightBarLayout);
+    auto tmp_s = blockMap[0][0].block->status;
+    auto tmp_g = blockMap[0][0].group;
+    role1 = new Role(this, windowLength, windowHeight,
+                     0, 0, rightBarLayout);
+
     roles.push_back(role1);
+
+    if(q == 0)
+        setBlockStatus(0, 0, tmp_s, tmp_g);
+
     if (s == twoPlayer) {
+        auto tmp_s = blockMap[windowLength - 1][windowHeight - 1].block->status;
+        auto tmp_g = blockMap[windowHeight - 1][windowHeight - 1].group;
         role2 = new Role(this, windowLength, windowHeight,
                          windowLength - 1, windowHeight - 1, leftBarLayout);
         roles.push_back(role2);
+        if(q == 0)
+            setBlockStatus(windowHeight - 1, windowHeight - 1, tmp_s, tmp_g);
     }
 
     for (auto &m: roles) {
@@ -104,6 +120,13 @@ void QLinkWindow::setGameMode(gameMode_t s) {
     }
     globalStatus = unstarted;
     gameMode = s;
+}
+
+void QLinkWindow::setGameMode(game_mode_t s) {
+    // not elegant at all!
+    clearAllAndRebuid();
+
+    setLayoutRebuild(s, 1);
 }
 
 void QLinkWindow::removeAllFrom(QLayout *layout) {
@@ -377,12 +400,34 @@ void QLinkWindow::keyPressEvent(QKeyEvent *event) {
         case paused: {
             if (event->key() == Qt::Key_Enter) {
                 startGame();
+            } else if (event->key() == Qt::Key_L) {
+                inputName();
             }
             break;
         }
         case gameOver: {
         }
     }
+}
+
+void QLinkWindow::inputName() {
+
+    bool success = false;
+    QInputDialog q(this);
+    this->releaseKeyboard();
+    QString text = QInputDialog::getText(this,
+                                         tr("Input Game name"), tr("Remember your game name"),
+                                         QLineEdit::Normal, "Game Name", &success);
+
+    if (success && !text.isEmpty()) {
+        if (load2Disk(text)) {
+            QMessageBox::information(this, "Success", "Go back menu soon");
+            goToMenu(this);
+        } else {
+            QMessageBox::information(this, "Fail", "No duplicate name");
+        }
+    }
+    this->grabKeyboard();
 }
 
 void QLinkWindow::endGame() {
@@ -443,7 +488,7 @@ void QLinkWindow::moveRole(int roleID, direction_t dir) {
     }
 }
 
-movingAction_t QLinkWindow::movingAction(Role *role, int &x, int &y) {
+moving_action_t QLinkWindow::movingAction(Role *role, int &x, int &y) {
     role->getPosition(x, y);
     QVector < QBlock * > noUse;
     if (blockMap[x][y].type == EMPTY) {
@@ -906,7 +951,6 @@ int QLinkWindow::isAnySol() {
             }
         }
     }
-
     if (isInHint) {
         updateHint();
     }
@@ -955,8 +999,9 @@ bool QLinkWindow::loadFromDisk(QString name) {
         return false;
 
     QFile file(name);
-    QString buffer = file.readAll();
-    auto substrs = buffer.split('&', Qt::SkipEmptyParts);
+    file.open(QIODevice::ReadOnly);
+    QDataStream in(&file);
+    in >> (*this);
     return true;
 }
 
@@ -977,90 +1022,44 @@ bool QLinkWindow::load2Disk(QString name) {
         return false;
 
     QFile file(name);
-    QString buffer = "";
-
-    // divided by &, and if is 2-D vector, divided by |, if
-    // 1-D vector, divided by ,
-    // [1, 2]: windowLength, windowHeight
-    addNum(buffer, (windowLength), 1);
-    addNum(buffer, (windowHeight), 1);
-    for(auto &f: blockMap){
-        for(auto &s: f){
-            addStr(buffer, fromBlockToStr(s), 2);
-        }
-    }
-    addStr(buffer, "", 1);
-    for(auto &c: colorSet){
-        addStr(buffer, c.name(), 2);
-    }
-    addStr(buffer, "", 1);
-    for(auto &c: wordColorSet){
-        addStr(buffer, c.name(), 2);
-    }
-    addStr(buffer, "", 1);
-    addNum(buffer, blockType, 1);
-    addNum(buffer, globalStatus, 1);
-    addNum(buffer, gameMode, 1);
-    addNum(buffer, gameTime1, 1);
-    addNum(buffer, hintTime1, 1);
-
-    for(auto s: roles){
-        addStr(buffer, fromRoleToStr(s), 2);
-    }
-    addStr(buffer, "", 1);
-
-    file.write(buffer.toUtf8());
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QDataStream s(&file);
+    s << (*this);
     return true;
 }
 
-QString QLinkWindow::fromRoleToStr(Role *role){
-    QString buffer = "";
+QDataStream &operator<<(QDataStream &output, const QLinkWindow &qw) {
+    output << qw.windowLength << qw.windowHeight;
 
-    addNum(buffer, role->playerID, 3);
-    addNum(buffer, role->xIndex, 3);
-    addNum(buffer, role->yIndex, 3);
-    addNum(buffer, role->playerID, 3);
-    addNum(buffer, role->playerID, 3);
-    addNum(buffer, role->playerID, 3);
-    addNum(buffer, role->playerID, 3);
-    addNum(buffer, role->playerID, 3);
-    addNum(buffer, role->playerID, 3);
-    return buffer;
-}
+    for (int i = 0; i < qw.windowLength; ++i)
+        for (int j = 0; j < qw.windowHeight; ++j)
+            output << qw.blockMap[i][j];
 
-QString QLinkWindow::fromBlockToStr(BLOCK_STRUCT b){
-    QString buffer = "";
+    output << qw.colorSet.size();
+    for (int i = 0; i < qw.colorSet.size(); ++i)
+        output << qw.colorSet[i].red() << qw.wordColorSet[i].red()
+               << qw.colorSet[i].green() << qw.wordColorSet[i].green()
+               << qw.colorSet[i].blue() << qw.wordColorSet[i].blue();
 
-    addNum(buffer, (b.type), 3);
-    addStr(buffer, b.color.name(), 3);
-    addNum(buffer, b.group, 3);
-    addNum(buffer, b.block->status, 3);
-    addNum(buffer, b.block->xIndex, 3);
-    addNum(buffer, b.block->yIndex, 3);
-    addNum(buffer, b.block->blockSize, 3);
-    addNum(buffer, b.block->prop_type, 3);
-    addStr(buffer, b.block->wordColor.name(), 3);
-    addStr(buffer, b.block->blockColor.name(), 3);
-    addNum(buffer, b.block->blockWidth, 3);
-    addNum(buffer, b.block->blockHeight, 3);
+    output << qw.blockType \
+ << qw.globalStatus << qw.gameMode << qw.gameTime1 \
+ << qw.hintTime1 << (*(qw.roles[0]));
 
-    return buffer;
-}
-
-QDataStream &operator<<(QDataStream &output, const QLinkWindow &qw){
-    output << qw.windowLength <<qw.windowHeight << qw.blockMap \
-           << qw.colorSet << qw.wordColorSet << qw.blockType \
-           << qw.globalStatus << qw.gameMode << qw.gameTime1 \
-           << qw.hintTime1 << (*(qw.roles[0]));
-
-    if(qw.gameMode == twoPlayer){
+    if (qw.gameMode == twoPlayer) {
         assert(qw.roles.size() == 2);
         output << (*(qw.roles[1]));
     }
 
-    output << qw.linesOnBoard << qw.timerList.size() \
-           << qw.linesOfHint \
-           << qw.isInHint << qw.hintTime << *(qw.lines);
+    output << qw.linesOnBoard.size();
+    for (int i = 0; i < qw.linesOnBoard.size(); ++i)
+        output << qw.linesOnBoard[i];
+    output << qw.timerList.size();
+
+    output << qw.linesOfHint.size();
+    for (int i = 0; i < qw.linesOfHint.size(); ++i)
+        output << qw.linesOfHint[i];
+
+    output << qw.isInHint << qw.hintTime << *(qw.lines);
 
     return output;
 }
@@ -1072,46 +1071,102 @@ QDataStream &operator<<(QDataStream &output, const QLinkWindow &qw){
  * Attention: you need to new all nullptr before you use this func!
  * @return
  */
-QDataStream &operator>>(QDataStream &input, QLinkWindow &qw){
+QDataStream &operator>>(QDataStream &input, QLinkWindow &qw) {
 
-    input >> qw.windowLength >> qw.windowHeight >> qw.blockMap \
-           >> qw.colorSet >> qw.wordColorSet >> qw.blockType \
-           >> qw.globalStatus >> qw.gameMode >> qw.gameTime1 \
-           >> qw.hintTime1 >> (*(qw.roles[0]));
+    input >> qw.windowLength >> qw.windowHeight;
+    qw.clearAllAndRebuid();
 
-    if(qw.gameMode == twoPlayer){
-        qw.leftBarLayout = new QVBoxLayout();
-        qw.role2 = new Role(&qw, 0, 0, 0, 0, qw.leftBarLayout);
-        qw.roles.push_back(qw.role2);
+    for (int i = 0; i < qw.windowLength; ++i)
+        for (int j = 0; j < qw.windowHeight; ++j)
+            input >> qw.blockMap[i][j];
+
+    int tmpSize;
+    input >> tmpSize;
+    qw.colorSet.resize(tmpSize);
+    qw.wordColorSet.resize(tmpSize);
+
+    for (int i = 0; i < tmpSize; ++i)
+    {
+        int r1, g1, b1, r2, g2, b2;
+        input >> r1 >> g1 >> b1 >> r2 >> g2 >> b2;
+        qw.colorSet[i]  = QColor(r1, b1, g2);
+        qw.wordColorSet[i] = QColor(g1, r2, b2);
+    }
+
+    game_status_t tmp;
+    input >> qw.blockType \
+ >> tmp >> qw.gameMode >> qw.gameTime1 \
+ >> qw.hintTime1;
+
+    qw.setLayoutRebuild(qw.gameMode, 0);
+
+    input >> (*(qw.roles[0]));
+    qw.roles[0]->setQL(&qw);
+
+    if (qw.gameMode == twoPlayer) {
         input >> (*(qw.roles[1]));
+        qw.roles[1]->setQL(&qw);
+    }
+
+    input >> tmpSize;
+    for (int i = 0; i < tmpSize; ++i)
+    {
+        int s;
+        input >> s;
+        qw.linesOnBoard.push_back(s);
     }
 
     int timerNum;
-    input >> qw.linesOnBoard >> timerNum \
-           >> qw.linesOfHint \
-           >> qw.isInHint >> qw.hintTime >> *(qw.lines);
+    input >> timerNum;
 
-    for(int i = 0; i < timerNum; ++i){
+    input >> tmpSize;
+    qw.linesOfHint.resize(tmpSize);
+    for (int i = 0; i < tmpSize; ++i)
+        input >> qw.linesOfHint[i];
+
+    input >> qw.isInHint >> qw.hintTime >> *(qw.lines);
+
+    for (int i = 0; i < timerNum; ++i) {
         qw.timerList.push_back(new QTimer());
     }
 
+    qw.globalStatus = tmp;
+    qw.layout()->update();
     return input;
 }
 
-QDataStream &operator<<(QDataStream &output, const BLOCK_STRUCT &bs){
+QDataStream &operator<<(QDataStream &output, const BLOCK_STRUCT &bs) {
 
-    output << bs.type << bs.color << bs.group << (*bs.block);
+    output << bs.type << bs.color.red()
+           << bs.color.green() << bs.color.blue()
+           << bs.group << (*bs.block);
     return output;
 }
 
-QDataStream &operator>>(QDataStream &input, BLOCK_STRUCT &bs){
+QDataStream &operator>>(QDataStream &input, BLOCK_STRUCT &bs) {
 
     bs.block = new QBlock();
-    input >> bs.type >> bs.color >> bs.group >> (*bs.block);
+    int r, g, b;
+    input >> bs.type >> r >> g >> b
+            >> bs.group >> (*bs.block);
+    bs.color = QColor(r, g, b);
     return input;
 }
 
-QBlock *QLinkWindow::getBlock(int x, int y){
+QBlock *QLinkWindow::getBlock(int x, int y) {
     return blockMap[x][y].block;
+}
+
+void QLinkWindow::startFromFile(QString fileName) {
+    fileName.push_back(".qlf");
+    if (!QFile::exists(fileName))
+        return;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    QDataStream in(&file);
+    file.open(QIODevice::ReadOnly);
+    in >> (*this);
 }
 

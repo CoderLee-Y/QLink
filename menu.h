@@ -11,11 +11,11 @@
 #include "enum.h"
 #include "constant.h"
 
-class menu : public QWidget
+class Menu : public QWidget
 {
      Q_OBJECT
 public:
-    menu();
+    Menu();
 
 private:
 
@@ -32,9 +32,11 @@ private slots:
     void onClickExit();
 
 signals:
-    void showGame(QWidget *, gameMode_t);
+    void showGame(QWidget *, game_mode_t);
 
-    void showLoad(QWidget *);
+    void showLoad(QWidget *, QString text);
+
+
 };
 
 #endif // MENU_H

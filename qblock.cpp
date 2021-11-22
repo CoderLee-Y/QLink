@@ -98,15 +98,21 @@ void QBlock::setIndex(int x, int y) {
 QDataStream &operator<<(QDataStream &output, const QBlock &b){
 
     output << b.status << b.xIndex << b.yIndex \
-           << b.blockSize << b.prop_type << b.wordColor \
-           << b.blockColor << b.blockWidth << b.blockHeight;
+           << b.blockSize << b.prop_type << b.wordColor.red()
+           << b.wordColor.green() << b.wordColor.blue()
+           << b.blockColor.red() << b.blockColor.green()
+           << b.blockColor.blue() << b.blockWidth << b.blockHeight;
     return output;
 }
 
 QDataStream &operator>>(QDataStream &input, QBlock &b){
 
+    int r, g, ba;
     input >> b.status >> b.xIndex >> b.yIndex \
-           >> b.blockSize >> b.prop_type >> b.wordColor \
-           >> b.blockColor >> b.blockWidth >> b.blockHeight;;
+           >> b.blockSize >> b.prop_type >> r >> g >> ba;
+
+    b.wordColor = QColor(r, g, ba);
+    input >> r >> g >> ba >> b.blockWidth >> b.blockHeight;
+    b.blockColor = QColor(r, g, ba);
     return input;
 }

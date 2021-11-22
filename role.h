@@ -2,7 +2,7 @@
 #define ROLE_H
 
 #include "qblock.h"
-#include "QLink.h"
+#include "qlink.h"
 #include "enum.h"
 #include "statusui.h"
 
@@ -33,7 +33,7 @@ private:
 
     QVBoxLayout* roleStatusBar;
 
-    statusUI *board1;
+    StatusUI *board1;
 
 private:
     void quickBackUp();
@@ -55,6 +55,8 @@ public:
     void setActivated(QBlock *act);
 
     void init();
+
+    void setQL(QLinkWindow *a);
 
     friend QDataStream &operator<<(QDataStream & , const Role &);
 

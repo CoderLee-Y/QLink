@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QLayoutItem>
 #include <QLabel>
+#include <QDataStream>
 #include <QPushButton>
 #include <QTextBlock>
 #include <QSizePolicy>
