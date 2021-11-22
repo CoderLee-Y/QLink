@@ -2,7 +2,6 @@
 #define ROLE_H
 
 #include "qblock.h"
-#include "qlink.h"
 #include "enum.h"
 #include "statusui.h"
 

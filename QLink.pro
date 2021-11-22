@@ -1,11 +1,11 @@
 QT += widgets
 
 # install
-#target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tutorials/widgets/childwidget
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tutorials/widgets/childwidget
 INSTALLS += target
-##TEMPLATE = app
-#CONFIG += qt console warn_on depend_includepath testcase
-##CONFIG -= app_bundle
+TEMPLATE = app
+CONFIG += qt console warn_on depend_includepath testcase
+CONFIG -= app_bundle
 #QT += testlib
 
 HEADERS += \
