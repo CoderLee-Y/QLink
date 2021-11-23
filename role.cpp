@@ -1,4 +1,4 @@
-#include "role.h"
+#include "qlink.h"
 
 Role::Role(QLinkWindow *qLink, int xBound, int yBound,
            int x0, int y0, QVBoxLayout *sideBar) : qLinkWindow(qLink),
@@ -119,7 +119,7 @@ QDataStream &operator<<(QDataStream &output, const Role &r) {
     output << r.xBoundary << r.yBoundary \
  << r.xLastIndex << r.yLastIndex \
  << r.score << r.canRollBack  \
- << r.status;
+ << (int) r.status;
 
     return output;
 }
@@ -141,9 +141,9 @@ QDataStream &operator>>(QDataStream &input, Role &r) {
 
     int status_id;
     input >> r.xBoundary >> r.yBoundary >> r.xLastIndex >> r.yLastIndex \
-       >> r.score >> r.canRollBack >> status_id;
+ >> r.score >> r.canRollBack >> status_id;
 
-    r.status = (role_status_t)status_id;
+    r.status = (role_status_t) status_id;
     if (r.hasActivated)
         r.activated = r.qLinkWindow->getBlock(x, y);
 
@@ -151,6 +151,6 @@ QDataStream &operator>>(QDataStream &input, Role &r) {
     return input;
 }
 
-void Role::setQL(QLinkWindow *a){
+void Role::setQL(QLinkWindow *a) {
     this->qLinkWindow = a;
 }

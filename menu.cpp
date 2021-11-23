@@ -1,7 +1,6 @@
 #include "menu.h"
 
-Menu::Menu(): QWidget()
-{
+Menu::Menu() : QWidget() {
     QSize fixedSize;
     fixedSize.setHeight(WINDOWHEIGHT);
     fixedSize.setWidth(WINDOWLEN);
@@ -26,8 +25,8 @@ Menu::Menu(): QWidget()
 
 }
 
-void Menu::initBtn(QVBoxLayout *layout){
-    QVector<QPushButton *> vec;
+void Menu::initBtn(QVBoxLayout *layout) {
+    QVector < QPushButton * > vec;
     QPushButton *singlePlayer = new QPushButton("1 Player");
     QPushButton *doublePlayer = new QPushButton("2 Player");
     QPushButton *load = new QPushButton("Load");
@@ -38,7 +37,7 @@ void Menu::initBtn(QVBoxLayout *layout){
     vec.push_back(load);
     vec.push_back(exit);
 
-    for(auto i: vec){
+    for (auto i: vec) {
         QFont btnFont;
         btnFont.setFamily("Microsoft YaHei");
         btnFont.setPixelSize(20);
@@ -62,31 +61,31 @@ void Menu::initBtn(QVBoxLayout *layout){
     layout->addWidget(exit, 0, Qt::AlignCenter);
 }
 
-void Menu::onClickExit(){
+void Menu::onClickExit() {
     QApplication::quit();
 }
 
-void Menu::onClickLoad(){
+void Menu::onClickLoad() {
     bool success = false;
 
     auto s = keyboardGrabber();
-    if(s != nullptr)
+    if (s != nullptr)
         s->releaseKeyboard();
 
     QString text = QInputDialog::getText(this,
-                   tr("Input Game name"), tr("The Game name set when saving"),
-                   QLineEdit::Normal, "Game Name", &success);
+                                         tr("Input Game name"), tr("The Game name set when saving"),
+                                         QLineEdit::Normal, "Game Name", &success);
 
-    if(s != nullptr)
+    if (s != nullptr)
         s->grabKeyboard();
-    if(!text.isEmpty() && success)
+    if (!text.isEmpty() && success)
         emit showLoad(this, text);
 }
 
-void Menu::onClickDoublePlayer(){
+void Menu::onClickDoublePlayer() {
     emit showGame(this, twoPlayer);
 }
 
-void Menu::onClickSinglePlayer(){
+void Menu::onClickSinglePlayer() {
     emit showGame(this, onePlayer);
 }

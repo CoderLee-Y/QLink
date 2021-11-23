@@ -9,17 +9,15 @@
 #include <QTextBlock>
 #include <QSizePolicy>
 #include <iostream>
-
 #include "constant.h"
 #include "enum.h"
 
 class QLinkWindow;
 
-class QBlock: public QLabel
-{
+class QBlock : public QLabel {
     friend class QLinkWindow;
 
-private:
+public:
     block_t status;
 
     QColor blockColor, wordColor;
@@ -52,9 +50,9 @@ public:
 
 public:
 
-    friend QDataStream &operator<<(QDataStream & , const QBlock &);
+    friend QDataStream &operator<<(QDataStream &, const QBlock &);
 
-    friend QDataStream &operator>>(QDataStream & , QBlock &);
+    friend QDataStream &operator>>(QDataStream &, QBlock &);
 
 };
 

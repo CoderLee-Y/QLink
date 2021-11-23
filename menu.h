@@ -11,9 +11,8 @@
 #include "enum.h"
 #include "constant.h"
 
-class Menu : public QWidget
-{
-     Q_OBJECT
+class Menu : public QWidget {
+    Q_OBJECT
 public:
     Menu();
 
@@ -21,9 +20,10 @@ private:
 
     void initBtn(QVBoxLayout *layout);
 
-private slots:
+private
+    slots:
 
-    void onClickSinglePlayer();
+            void onClickSinglePlayer();
 
     void onClickDoublePlayer();
 
@@ -31,8 +31,8 @@ private slots:
 
     void onClickExit();
 
-signals:
-    void showGame(QWidget *, game_mode_t);
+    signals:
+            void showGame(QWidget * , game_mode_t);
 
     void showLoad(QWidget *, QString text);
 

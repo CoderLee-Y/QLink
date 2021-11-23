@@ -8,8 +8,7 @@
 /**
  * @brief The statusUI class, side bar of my game
  */
-class StatusUI
-{
+class StatusUI {
 private:
     QVBoxLayout *layout;
 

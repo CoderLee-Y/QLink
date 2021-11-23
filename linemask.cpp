@@ -29,8 +29,8 @@ void LineMask::removeLines(int idx) {
 QDataStream &operator<<(QDataStream &output, const LineMask &lm) {
 
     output << lm.num;
-    assert(lm.num == lm.seen.size());
-    assert(lm.num == lm.lineGroup.size());
+    assert(lm.num == static_cast<unsigned int>(lm.seen.size()));
+    assert(lm.num == static_cast<unsigned int>(lm.lineGroup.size()));
     for (unsigned int i = 0; i < lm.num; ++i) {
         output << lm.lineGroup[i] << lm.seen[i];
     }

@@ -1,7 +1,6 @@
 #include "statusui.h"
 
-StatusUI::StatusUI(QVBoxLayout *hand, int num): playerNum(num)
-{
+StatusUI::StatusUI(QVBoxLayout *hand, int num) : playerNum(num) {
     layout = hand;
     initSideBar();
 
@@ -9,9 +8,9 @@ StatusUI::StatusUI(QVBoxLayout *hand, int num): playerNum(num)
     layout->update();
 }
 
-void StatusUI::initSideBar(){
+void StatusUI::initSideBar() {
     QLabel *playerInfo = new QLabel();
-    if(playerNum == 1)
+    if (playerNum == 1)
         playerInfo->setText(PLAYER1MSG);
     else
         playerInfo->setText(PLAYER2MSG);
@@ -60,32 +59,32 @@ void StatusUI::initSideBar(){
 
 }
 
-void StatusUI::addText(QString str){
+void StatusUI::addText(QString str) {
     QLabel *text = new QLabel;
     text->setText(str);
     layout->update();
 }
 
-void StatusUI::setInfo(QString info){
+void StatusUI::setInfo(QString info) {
     info_c->setText(info);
     layout->update();
 }
 
-void StatusUI::setSolNum(int s){
+void StatusUI::setSolNum(int s) {
     QString sp;
     sp.setNum(s);
     sol_num_c->setText(sp);
     layout->update();
 }
 
-void StatusUI::setTime(int s){
+void StatusUI::setTime(int s) {
     QString sp;
     sp.setNum(s);
     time_c->setText(sp);
     layout->update();
 }
 
-void StatusUI::setFont(QLabel *q, int size){
+void StatusUI::setFont(QLabel *q, int size) {
     QFont qf;
     qf.setBold(true);
     qf.setFamily("Microsoft YaHei");
@@ -94,7 +93,7 @@ void StatusUI::setFont(QLabel *q, int size){
     q->setFont(qf);
 }
 
-void StatusUI::setScore(int score){
+void StatusUI::setScore(int score) {
     QString sp;
     sp.setNum(score);
     score_t->setText(sp);

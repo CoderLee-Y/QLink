@@ -13,7 +13,7 @@ QBlock::QBlock(int len, int height, QWidget *parent) : QLabel(parent) {
     blockColor = QColor(255, 255, 255);
 }
 
-QBlock::QBlock(){
+QBlock::QBlock() {
     blockColor = QColor(255, 255, 255);
     status = EMPTY;
 }
@@ -63,15 +63,13 @@ void QBlock::paintEvent(QPaintEvent *event) {
     QLabel::paintEvent(event);
 }
 
-void QBlock::setBlockSize(int idx){
+void QBlock::setBlockSize(int idx) {
     blockSize = idx;
     QSize size;
-    if(idx == 0)
-    {
+    if (idx == 0) {
         size.setWidth(blockWidth);
         size.setHeight(blockHeight);
-    }
-    else{
+    } else {
         size.setWidth(blockWidth * 0.98);
         size.setHeight(blockHeight * 0.98);
 
@@ -95,22 +93,25 @@ void QBlock::setIndex(int x, int y) {
     this->yIndex = y;
 }
 
-QDataStream &operator<<(QDataStream &output, const QBlock &b){
+QDataStream &operator<<(QDataStream &output, const QBlock &b) {
 
-    output << b.status << b.xIndex << b.yIndex \
-           << b.blockSize << b.prop_type << b.wordColor.red()
-           << b.wordColor.green() << b.wordColor.blue()
-           << b.blockColor.red() << b.blockColor.green()
-           << b.blockColor.blue() << b.blockWidth << b.blockHeight;
+    output << (qint32) b.status << b.xIndex << b.yIndex \
+ << b.blockSize << (qint32) b.prop_type << (int) b.wordColor.red()
+           << (int) b.wordColor.green() << (int) b.wordColor.blue()
+           << (int) b.blockColor.red() << (int) b.blockColor.green()
+           << (int) b.blockColor.blue() << b.blockWidth << b.blockHeight;
     return output;
 }
 
-QDataStream &operator>>(QDataStream &input, QBlock &b){
+QDataStream &operator>>(QDataStream &input, QBlock &b) {
 
     int r, g, ba;
-    input >> b.status >> b.xIndex >> b.yIndex \
-           >> b.blockSize >> b.prop_type >> r >> g >> ba;
+    qint32 status_num, prop_num;
+    input >> status_num >> b.xIndex >> b.yIndex \
+ >> b.blockSize >> prop_num >> r >> g >> ba;
 
+    b.status = block_t(status_num);
+    b.prop_type = prop_t(prop_num);
     b.wordColor = QColor(r, g, ba);
     input >> r >> g >> ba >> b.blockWidth >> b.blockHeight;
     b.blockColor = QColor(r, g, ba);

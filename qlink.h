@@ -27,9 +27,9 @@ public:
 
     QBlock *block;
 
-    friend QDataStream &operator<<(QDataStream & , const BLOCK_STRUCT &);
+    friend QDataStream &operator<<(QDataStream &, const BLOCK_STRUCT &);
 
-    friend QDataStream &operator>>(QDataStream & , BLOCK_STRUCT &);
+    friend QDataStream &operator>>(QDataStream &, BLOCK_STRUCT &);
 
 
 };
@@ -55,11 +55,11 @@ private:
     // blocks number here
     int windowLength, windowHeight;
 
-    QVector<QVector<BLOCK_STRUCT>> blockMap;
+    QVector <QVector<BLOCK_STRUCT>> blockMap;
 
-    QVector<QColor> colorSet;
+    QVector <QColor> colorSet;
 
-    QVector<QColor> wordColorSet;
+    QVector <QColor> wordColorSet;
 
     Role *role1, *role2;
 
@@ -75,17 +75,16 @@ private:
 
     QQueue<int> linesOnBoard;
 
-    QQueue<QTimer*> timerList;
+    QQueue<QTimer *> timerList;
 
-    QList<direction_t> keyPressed;
+    QList <direction_t> keyPressed;
 
-    QVector<QVector < QBlock * >> refAnswers;
+    QVector <QVector<QBlock * >> refAnswers;
 
     QVector<int> linesOfHint;
 
     int isInHint, hintTime;
 
-    QVector<Role *> roles;
 
 // necessary timer
 private:
@@ -142,17 +141,14 @@ private:
 
     moving_action_t movingAction(Role *role, int &, int &);
 
-    void setBlockStatus(int i,int j, block_t status, int group);
+    void setBlockStatus(int i, int j, block_t status, int group);
 
     void moveRole(int roleID, direction_t dir);
 
-    bool isLeagalElimate(Role *, int x1, int y1, int x2,
-                         int y2, bool changeInfo, QVector < QBlock * > &paths);
-
-    QVector<direction_t> AStarFindDirection(int x1, int y1, int x2, int y2);
+    QVector <direction_t> AStarFindDirection(int x1, int y1, int x2, int y2);
 
     int findLine(int x1, int y1, int x2, int y2, direction_t past_dir,
-                 QVector<QBlock*> &path);
+                 QVector<QBlock *> &path);
 
     bool isLegalPoint(int x, int y);
 
@@ -162,7 +158,7 @@ private:
 
     void shuffleBlocks(int);
 
-    int drawAnswers(QVector < QBlock * > &);
+    int drawAnswers(QVector<QBlock *> &);
 
     void setTime4Line(int lineNum, int msec);
 
@@ -182,9 +178,12 @@ public:
 
     void setGameMode(game_mode_t s);
 
-    QBlock* getBlock(int x, int y);
+    QBlock *getBlock(int x, int y);
 
     void startFromFile(QString fileName);
+
+    void setBlock(const int &x, const int &y, const block_t &t,
+                  const int &group);
 
 // event monitor function here
 protected:
@@ -192,9 +191,10 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 // handler function here
-private slots:
+private
+    slots:
 
-    void handleKeyPressed();
+            void handleKeyPressed();
 
     void handlePlayerTimer();
 
@@ -202,17 +202,25 @@ private slots:
 
     void handleLineTimer();
 
-signals:
+    signals:
 
-    void goToMenu(QWidget *);
+            void goToMenu(QWidget * );
 
 public:
 
-    friend QDataStream &operator<<(QDataStream & , const QLinkWindow &);
+    friend QDataStream &operator<<(QDataStream &, const QLinkWindow &);
 
-    friend QDataStream &operator>>(QDataStream & , QLinkWindow &);
+    friend QDataStream &operator>>(QDataStream &, QLinkWindow &);
+
+// have to be public because of unit test
+public:
+
+    QVector<Role *> roles;
+
+
+    bool isLeagalElimate(Role *, int x1, int y1, int x2,
+                         int y2, bool changeInfo, QVector<QBlock *> &paths);
 };
 
 
 #endif // QLINK_H
-

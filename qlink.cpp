@@ -102,7 +102,7 @@ void QLinkWindow::setLayoutRebuild(game_mode_t s, int q) {
 
     roles.push_back(role1);
 
-    if(q == 0)
+    if (q == 0)
         setBlockStatus(0, 0, tmp_s, tmp_g);
 
     if (s == twoPlayer) {
@@ -111,7 +111,7 @@ void QLinkWindow::setLayoutRebuild(game_mode_t s, int q) {
         role2 = new Role(this, windowLength, windowHeight,
                          windowLength - 1, windowHeight - 1, leftBarLayout);
         roles.push_back(role2);
-        if(q == 0)
+        if (q == 0)
             setBlockStatus(windowHeight - 1, windowHeight - 1, tmp_s, tmp_g);
     }
 
@@ -488,17 +488,25 @@ void QLinkWindow::moveRole(int roleID, direction_t dir) {
     }
 }
 
+/**
+ * @brief QLinkWindow::movingAction
+ * @param role which player to move
+ * @param x move to where, is ret val
+ * @param y
+ * @return return move action
+ */
 moving_action_t QLinkWindow::movingAction(Role *role, int &x, int &y) {
     role->getPosition(x, y);
-    QVector < QBlock * > noUse;
-    if (blockMap[x][y].type == EMPTY) {
+    QVector < QBlock * > noUse; // reuse other function
+
+    if (blockMap[x][y].type == EMPTY) { // directly move
         role->cancelBackup();
         setBlockStatus(x, y, PLAYER, blockMap[x][y].group);
         setBlockStatus(role->xLastIndex, role->yLastIndex, EMPTY, 0);
-    } else if (blockMap[x][y].type == PLAYER) {
+    } else if (blockMap[x][y].type == PLAYER) { // other player stuck
         role->rollback();
         return PLAYEROCCUPIED;
-    } else if (blockMap[x][y].type == OCCUPIED) {
+    } else if (blockMap[x][y].type == OCCUPIED) { // meets block
         if (role->hasActivated) {
             int xActivated = role->activated->xIndex;
             int yActivated = role->activated->yIndex;
@@ -541,6 +549,10 @@ moving_action_t QLinkWindow::movingAction(Role *role, int &x, int &y) {
     return NORMAL;
 }
 
+/**
+ * @brief QLinkWindow::handleProps
+ * @param prop lead to props handler
+ */
 void QLinkWindow::handleProps(prop_t prop) {
     switch (prop) {
         case plusSec: {
@@ -556,6 +568,10 @@ void QLinkWindow::handleProps(prop_t prop) {
     }
 }
 
+/**
+ * @brief QLinkWindow::handleHint
+ * set hint time and update UI
+ */
 void QLinkWindow::handleHint() {
     if (isInHint) {
         hintTime += 10;
@@ -573,6 +589,12 @@ void QLinkWindow::handleHint() {
     }
 }
 
+/**
+ * @brief QLinkWindow::updateHint
+ * if changes happens, update hint:
+ * 1. reshuffle
+ * 2. elimate
+ */
 void QLinkWindow::updateHint() {
     for (auto &lineNum: linesOfHint) {
         lines->removeLines(lineNum);
@@ -587,6 +609,9 @@ void QLinkWindow::updateHint() {
 
 }
 
+/**
+ * @brief QLinkWindow::handlePlusSecond
+ */
 void QLinkWindow::handlePlusSecond() {
     gameTime1 += 30;
     for (auto &m: roles) {
@@ -594,6 +619,10 @@ void QLinkWindow::handlePlusSecond() {
     }
 }
 
+/**
+ * @brief QLinkWindow::handleKeyPressed
+ * use queue to handle quick moving
+ */
 void QLinkWindow::handleKeyPressed() {
     while (!keyPressed.empty()) {
         direction_t dir = keyPressed.front();
@@ -699,6 +728,46 @@ bool QLinkWindow::isLeagalElimate(Role *who, int x1, int y1, int x2, int y2,
     }
 
     return ret;
+}
+
+/**
+ * @brief QLinkWindow::findLine for dfs's target
+ * @param x1 y1 start point
+ * @param x2 y2 end point
+ * @param path ref to record path and draw lines according to this
+ * @return -1: OVER 2 broken lines
+ */
+int QLinkWindow::findLine(int x1, int y1, int x2, int y2, direction_t past_dir,
+                          QVector<QBlock *> &path) {
+    int num = 0;
+    // if arrive point, return success
+    if (x1 == x2 && y1 == y2) {
+        if (path.back()->xIndex != x2 || path.back()->yIndex != y2)
+            path.push_back(blockMap[x2][y2].block);
+        return 1;
+    }
+    // over bound or over to broken lines, return failure
+    if (path.size() >= 3 || !isLegalPoint(x1, y1) ||
+        (blockMap[x1][y1].type == OCCUPIED && past_dir != UNDEF))
+        return 0;
+
+    QVector <direction_t> dirs = AStarFindDirection(x1, y1, x2, y2);
+    assert(dirs.size() == 4);
+    for (auto &dir: dirs) {
+        int new_x = x1, new_y = y1;
+        // change direction
+        if (past_dir != dir) {
+            path.push_back(blockMap[x1][y1].block);
+        }
+        new_x += dir == DIR_UP ? (-1) : (dir == DIR_DOWN ? 1 : 0);
+        new_y += dir == DIR_LEFT ? (-1) : (dir == DIR_RIGHT ? 1 : 0);
+        num = findLine(new_x, new_y, x2, y2, dir, path);
+        if (num == 1)
+            return num;
+        else if (dir != past_dir)
+            path.pop_back();
+    }
+    return num;
 }
 
 void QLinkWindow::setTime4Line(int lineNum, int msec) {
@@ -826,67 +895,6 @@ QVector <direction_t> QLinkWindow::AStarFindDirection(int x1, int y1,
 }
 
 /**
- * @brief QLinkWindow::findLine for dfs's target
- * @param x1 y1 start point
- * @param x2 y2 end point
- * @param path ref to record path and draw lines according to this
- * @return -1: OVER 2 broken lines
- */
-int QLinkWindow::findLine(int x1, int y1, int x2, int y2, direction_t past_dir,
-                          QVector<QBlock *> &path) {
-    int num = 0;
-    // if arrive point, return success
-    if (x1 == x2 && y1 == y2) {
-        if (path.back()->xIndex != x2 || path.back()->yIndex != y2)
-            path.push_back(blockMap[x2][y2].block);
-        return 1;
-    }
-    // over bound or over to broken lines, return failure
-    if (path.size() >= 3 || !isLegalPoint(x1, y1) ||
-        (blockMap[x1][y1].type == OCCUPIED && past_dir != UNDEF))
-        return 0;
-
-    QVector <direction_t> dirs = AStarFindDirection(x1, y1, x2, y2);
-    assert(dirs.size() == 4);
-    for (auto &dir: dirs) {
-        int new_x = x1, new_y = y1;
-        // change direction
-        if (past_dir != dir) {
-            path.push_back(blockMap[x1][y1].block);
-        }
-        switch (dir) {
-            case DIR_UP: {
-                new_x -= 1;
-                break;
-            }
-            case DIR_DOWN: {
-                new_x += 1;
-                break;
-            }
-            case DIR_LEFT: {
-                new_y -= 1;
-                break;
-            }
-            case DIR_RIGHT: {
-                new_y += 1;
-                break;
-            }
-            default: {
-                assert(0);
-                break;
-            }
-        }
-
-        num = findLine(new_x, new_y, x2, y2, dir, path);
-        if (num == 1)
-            return num;
-        else if (dir != past_dir) // 转过方向，就把多的去掉
-            path.pop_back();
-    }
-    return num;
-}
-
-/**
  * @brief QLinkWindow::canReachBorder, FIND a point can be reached By player
  * if can reach column 0 / row 0, player can reach here.
  * @param x, y: point to find
@@ -957,37 +965,6 @@ int QLinkWindow::isAnySol() {
     return ans;
 }
 
-void addNum(QString &m, int s, int level) {
-    m.push_back(QString::number(s));
-    switch (level) {
-        case 1:
-            m.push_back("&");
-            break;
-        case 2:
-            m.push_back("|");
-            break;
-        case 3:
-            m.push_back(",");
-            break;
-    }
-}
-
-void addStr(QString &m, QString s, int level) {
-    m.push_back((s));
-    switch (level) {
-        case 1:
-            m.push_back("&");
-            break;
-        case 2:
-            m.push_back("|");
-            break;
-        case 3:
-            m.push_back(",");
-            break;
-    }
-}
-
-
 /**
  * @brief QLinkWindow::loadFromDisk
  * @param name Load from file and start remaining game
@@ -1037,12 +1014,12 @@ QDataStream &operator<<(QDataStream &output, const QLinkWindow &qw) {
 
     output << qw.colorSet.size();
     for (int i = 0; i < qw.colorSet.size(); ++i)
-        output << qw.colorSet[i].red() << qw.wordColorSet[i].red()
-               << qw.colorSet[i].green() << qw.wordColorSet[i].green()
-               << qw.colorSet[i].blue() << qw.wordColorSet[i].blue();
+        output << (int) qw.colorSet[i].red() << (int) qw.wordColorSet[i].red()
+               << (int) qw.colorSet[i].green() << (int) qw.wordColorSet[i].green()
+               << (int) qw.colorSet[i].blue() << (int) qw.wordColorSet[i].blue();
 
     output << qw.blockType \
- << qw.globalStatus << qw.gameMode << qw.gameTime1 \
+ << (qint32) qw.globalStatus << (qint32) qw.gameMode << qw.gameTime1 \
  << qw.hintTime1 << (*(qw.roles[0]));
 
     if (qw.gameMode == twoPlayer) {
@@ -1085,20 +1062,25 @@ QDataStream &operator>>(QDataStream &input, QLinkWindow &qw) {
     qw.colorSet.resize(tmpSize);
     qw.wordColorSet.resize(tmpSize);
 
-    for (int i = 0; i < tmpSize; ++i)
-    {
+    for (int i = 0; i < tmpSize; ++i) {
         int r1, g1, b1, r2, g2, b2;
         input >> r1 >> g1 >> b1 >> r2 >> g2 >> b2;
-        qw.colorSet[i]  = QColor(r1, b1, g2);
+        qw.colorSet[i] = QColor(r1, b1, g2);
         qw.wordColorSet[i] = QColor(g1, r2, b2);
     }
 
-    game_status_t tmp;
-    input >> qw.blockType \
- >> tmp >> qw.gameMode >> qw.gameTime1 \
- >> qw.hintTime1;
+    qint32 global_status_num, game_mode_num;
+    input >> qw.blockType >> global_status_num >> game_mode_num >> qw.gameTime1 >> qw.hintTime1;
+
+    qw.globalStatus = game_status_t(global_status_num);
+    qw.gameMode = game_mode_t(game_mode_num);
 
     qw.setLayoutRebuild(qw.gameMode, 0);
+
+    qw.roles.resize(1);
+    if (qw.gameMode == twoPlayer) {
+        qw.roles.resize(2);
+    }
 
     input >> (*(qw.roles[0]));
     qw.roles[0]->setQL(&qw);
@@ -1109,8 +1091,7 @@ QDataStream &operator>>(QDataStream &input, QLinkWindow &qw) {
     }
 
     input >> tmpSize;
-    for (int i = 0; i < tmpSize; ++i)
-    {
+    for (int i = 0; i < tmpSize; ++i) {
         int s;
         input >> s;
         qw.linesOnBoard.push_back(s);
@@ -1130,15 +1111,14 @@ QDataStream &operator>>(QDataStream &input, QLinkWindow &qw) {
         qw.timerList.push_back(new QTimer());
     }
 
-    qw.globalStatus = tmp;
     qw.layout()->update();
     return input;
 }
 
 QDataStream &operator<<(QDataStream &output, const BLOCK_STRUCT &bs) {
 
-    output << bs.type << bs.color.red()
-           << bs.color.green() << bs.color.blue()
+    output << (qint32) bs.type << (int) bs.color.red()
+           << (int) bs.color.green() << (int) bs.color.blue()
            << bs.group << (*bs.block);
     return output;
 }
@@ -1147,8 +1127,11 @@ QDataStream &operator>>(QDataStream &input, BLOCK_STRUCT &bs) {
 
     bs.block = new QBlock();
     int r, g, b;
-    input >> bs.type >> r >> g >> b
-            >> bs.group >> (*bs.block);
+    qint32 block_num;
+    input >> block_num >> r >> g >> b
+          >> bs.group >> (*bs.block);
+
+    bs.type = block_t(block_num);
     bs.color = QColor(r, g, b);
     return input;
 }
@@ -1157,6 +1140,10 @@ QBlock *QLinkWindow::getBlock(int x, int y) {
     return blockMap[x][y].block;
 }
 
+/**
+ * @brief QLinkWindow::startFromFile
+ * @param fileName archive name
+ */
 void QLinkWindow::startFromFile(QString fileName) {
     fileName.push_back(".qlf");
     if (!QFile::exists(fileName))
@@ -1166,7 +1153,24 @@ void QLinkWindow::startFromFile(QString fileName) {
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
     QDataStream in(&file);
-    file.open(QIODevice::ReadOnly);
     in >> (*this);
+    file.close();
+}
+
+/**
+ * @brief QLinkWindow::setBlock For test only
+ * @param x, y the block to set
+ * @param t block type
+ * @param group block group number
+ */
+void QLinkWindow::setBlock(const int &x, const int &y, const block_t &t, const int &group) {
+    assert(x >= 0 && x < windowHeight);
+    assert(y >= 0 && y < windowLength);
+    auto block = blockMap[x][y];
+
+    block.type = t;
+    block.group = group;
+    block.block->status = t;
+    blockMap[x][y] = block;
 }
 

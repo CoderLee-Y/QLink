@@ -12,8 +12,7 @@
 #include "qlink.h"
 #include "menu.h"
 
-class Controller: public QObject
-{
+class Controller : public QObject {
     Q_OBJECT
 public:
     Controller();
@@ -26,15 +25,18 @@ private:
 
     Menu *menuWindow;
 
-private slots:
+private
+    slots:
 
-    void showGame(QWidget *from, game_mode_t s);
+            void showGame(QWidget * from, game_mode_t
+    s);
 
     void showMenu(QWidget *from);
 
     void showLoad(QWidget *from, QString text);
 
-private slots:
+private
+    slots:
 
 };
 

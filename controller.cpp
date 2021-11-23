@@ -1,6 +1,6 @@
 #include "controller.h"
 
-Controller::Controller(){
+Controller::Controller() {
 
     menuWindow = new Menu();
     qLinkWindow = new QLinkWindow();
@@ -16,26 +16,26 @@ Controller::Controller(){
     menuWindow->grabKeyboard();
 }
 
-void Controller::show(){
+void Controller::show() {
     menuWindow->show();
 }
 
 
-void Controller::showGame(QWidget *from, game_mode_t s){
+void Controller::showGame(QWidget *from, game_mode_t s) {
     qLinkWindow->grabKeyboard();
     qLinkWindow->setGameMode(s);
     from->hide();
     qLinkWindow->show();
 }
 
-void Controller::showLoad(QWidget *from, QString text){
+void Controller::showLoad(QWidget *from, QString text) {
     from->hide();
     qLinkWindow->grabKeyboard();
     qLinkWindow->startFromFile(text);
     qLinkWindow->show();
 }
 
-void Controller::showMenu(QWidget *from){
+void Controller::showMenu(QWidget *from) {
     from->hide();
     qLinkWindow->releaseKeyboard();
     menuWindow->show();

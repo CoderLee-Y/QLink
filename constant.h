@@ -1,9 +1,6 @@
 #ifndef CONSTANT_H
 #define CONSTANT_H
 
-#include <QVector>
-#include <QColor>
-
 #define WINDOWLEN 1280
 #define WINDOWHEIGHT 720
 

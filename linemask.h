@@ -9,12 +9,10 @@
 #include <QPainter>
 #include "qblock.h"
 
-
-class LineMask: public QFrame
-{
+class LineMask : public QFrame {
 private:
 
-    QVector<QVector<QLine>> lineGroup;
+    QVector <QVector<QLine>> lineGroup;
 
     void paintEvent(QPaintEvent *) override;
 
@@ -25,15 +23,15 @@ private:
 public:
     LineMask();
 
-    int addLines(QVector<QLine> &);
+    int addLines(QVector <QLine> &);
 
     void removeLines(int idx);
 
 public:
 
-    friend QDataStream &operator<<(QDataStream & , const LineMask &);
+    friend QDataStream &operator<<(QDataStream &, const LineMask &);
 
-    friend QDataStream &operator>>(QDataStream & , LineMask &);
+    friend QDataStream &operator>>(QDataStream &, LineMask &);
 
 };
 

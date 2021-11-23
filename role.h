@@ -7,8 +7,7 @@
 
 class QLinkWindow;
 
-class Role
-{
+class Role {
     friend class QLinkWindow;
 
 private:
@@ -30,7 +29,7 @@ private:
 
     role_status_t status;
 
-    QVBoxLayout* roleStatusBar;
+    QVBoxLayout *roleStatusBar;
 
     StatusUI *board1;
 
@@ -39,7 +38,7 @@ private:
 
 public:
     Role(QLinkWindow *, int xBound, int yBound,
-            int x0 = 0, int y0 = 0, QVBoxLayout* = nullptr);
+         int x0 = 0, int y0 = 0, QVBoxLayout * = nullptr);
 
     direction_t move(direction_t dir);
 
@@ -57,9 +56,9 @@ public:
 
     void setQL(QLinkWindow *a);
 
-    friend QDataStream &operator<<(QDataStream & , const Role &);
+    friend QDataStream &operator<<(QDataStream &, const Role &);
 
-    friend QDataStream &operator>>(QDataStream & , Role &);
+    friend QDataStream &operator>>(QDataStream &, Role &);
 };
 
 #endif // ROLE_H
