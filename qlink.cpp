@@ -711,6 +711,12 @@ bool QLinkWindow::isLeagalElimate(Role *who, int x1, int y1, int x2, int y2,
                                   bool changeInfo, QVector<QBlock *> &path) {
     int ret;
     path.clear();
+
+    if(blockMap[x1][y1].type == EMPTY || blockMap[x1][y1].type == PLAYER
+            || blockMap[x1][y1].type == PROPS || blockMap[x2][y2].type == EMPTY
+            || blockMap[x2][y2].type == PLAYER || blockMap[x2][y2].type == PROPS){
+        return false;
+    }
     if (blockMap[x1][y1].group == blockMap[x2][y2].group) {
         // change legal elimate method: find in list
         ret = findLine(x1, y1, x2, y2, UNDEF, path);
@@ -742,12 +748,16 @@ int QLinkWindow::findLine(int x1, int y1, int x2, int y2, direction_t past_dir,
     int num = 0;
     // if arrive point, return success
     if (x1 == x2 && y1 == y2) {
-        if (path.back()->xIndex != x2 || path.back()->yIndex != y2)
+        if (path.back()->xIndex != x2 || path.back()->yIndex != y2){
             path.push_back(blockMap[x2][y2].block);
+        }
+        if(path.size() > 4){
+            return 0; // Buggy in origin code!!!
+        }
         return 1;
     }
     // over bound or over to broken lines, return failure
-    if (path.size() >= 3 || !isLegalPoint(x1, y1) ||
+    if (path.size() > 3 || !isLegalPoint(x1, y1) ||
         (blockMap[x1][y1].type == OCCUPIED && past_dir != UNDEF))
         return 0;
 

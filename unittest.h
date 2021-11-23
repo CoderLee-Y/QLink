@@ -14,7 +14,7 @@ private
 
     void testFailure();
 
-    void testDifferentContent();
+    void testDifferentStatus();
 
     void testDifferentType();
 
@@ -24,10 +24,14 @@ public:
     UnitTest();
 
 private:
+
     Controller *window;
+
     QLinkWindow *qlink;
 
     Role *player1, *player2;
+
+    QVector < QBlock * > path;
 };
 
 #endif // UNITTEST_H
