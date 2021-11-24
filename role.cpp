@@ -1,11 +1,10 @@
 #include "qlink.h"
 
 Role::Role(QLinkWindow *qLink, int xBound, int yBound,
-           int x0, int y0, QVBoxLayout *sideBar) : qLinkWindow(qLink),
-                                                   activated(nullptr), xIndex(x0), yIndex(y0), score(0),
-                                                   xBoundary(xBound), yBoundary(yBound),
+           int x0, int y0, QVBoxLayout *sideBar) : xIndex(x0), yIndex(y0), activated(nullptr), qLinkWindow(qLink),
+                                                   xBoundary(xBound), yBoundary(yBound), score(0),
                                                    canRollBack(false), hasActivated(false), status(normal),
-                                                   roleStatusBar(sideBar) {
+                                                    roleStatusBar(sideBar) {
     playerID = (x0 == 0 && y0 == 0);
     board1 = new StatusUI(roleStatusBar, playerID);
     init();
@@ -26,7 +25,7 @@ void Role::init() {
  * @return if move successfully, return UNDEF, if meet boundary
  * return the direction of boundary
  */
-direction_t Role::move(direction_t dir) {
+direction_t Role::move(const direction_t &dir) {
     if (canRollBack) {
         Sleep(10);
     }
@@ -73,7 +72,7 @@ direction_t Role::move(direction_t dir) {
     return UNDEF;
 }
 
-void Role::plusScore(int score) {
+void Role::plusScore(const int &score) {
     this->score += score;
     board1->setScore(this->score);
 }

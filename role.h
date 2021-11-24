@@ -37,22 +37,24 @@ private:
     void quickBackUp();
 
 public:
-    Role(QLinkWindow *, int xBound, int yBound,
-         int x0 = 0, int y0 = 0, QVBoxLayout * = nullptr);
-
-    direction_t move(direction_t dir);
-
-    void plusScore(int score);
-
-    void getPosition(int &, int &);
 
     bool rollback();
 
     void cancelBackup();
 
-    void setActivated(QBlock *act);
-
     void init();
+
+public:
+    Role(QLinkWindow *, int xBound, int yBound,
+         int x0 = 0, int y0 = 0, QVBoxLayout * = nullptr);
+
+    direction_t move(const direction_t &dir);
+
+    void plusScore(const int &score);
+
+    void getPosition(int &, int &);
+
+    void setActivated(QBlock *act);
 
     void setQL(QLinkWindow *a);
 

@@ -67,9 +67,9 @@ void QLinkWindow::clearAllAndRebuid() {
     gameTime1 = 10;
 }
 
-void QLinkWindow::setLayoutRebuild(const game_mode_t &s, const int &q, const int &new_game) {
+void QLinkWindow::setLayoutRebuild(const game_mode_t &s, const int &q) {
     QHBoxLayout *basicLayout;
-    basicLayout = (globalStatus == unstarted || new_game) ?
+    basicLayout = (globalStatus == unstarted) ?
                   new QHBoxLayout() : (QHBoxLayout * )this->layout();
 
     lines = new LineMask();
@@ -125,7 +125,7 @@ void QLinkWindow::setGameMode(const game_mode_t &s) {
     // not elegant at all!
     clearAllAndRebuid();
 
-    setLayoutRebuild(s, 1, 0);
+    setLayoutRebuild(s, 1);
 }
 
 void QLinkWindow::removeAllFrom(QLayout *layout) {
@@ -1025,7 +1025,7 @@ QDataStream &operator<<(QDataStream &output, const QLinkWindow &qw) {
         for (int j = 0; j < qw.windowHeight; ++j)
             output << qw.blockMap[i][j];
 
-    output << qw.colorSet.size();
+    output << (int)qw.colorSet.size();
     for (int i = 0; i < qw.colorSet.size(); ++i)
         output << (int) qw.colorSet[i].red() << (int) qw.wordColorSet[i].red()
                << (int) qw.colorSet[i].green() << (int) qw.wordColorSet[i].green()
@@ -1040,12 +1040,12 @@ QDataStream &operator<<(QDataStream &output, const QLinkWindow &qw) {
         output << (*(qw.roles[1]));
     }
 
-    output << qw.linesOnBoard.size();
+    output << (int)qw.linesOnBoard.size();
     for (int i = 0; i < qw.linesOnBoard.size(); ++i)
         output << qw.linesOnBoard[i];
-    output << qw.timerList.size();
+    output << (int)qw.timerList.size();
 
-    output << qw.linesOfHint.size();
+    output << (int)qw.linesOfHint.size();
     for (int i = 0; i < qw.linesOfHint.size(); ++i)
         output << qw.linesOfHint[i];
 
@@ -1085,15 +1085,9 @@ QDataStream &operator>>(QDataStream &input, QLinkWindow &qw) {
     qint32 global_status_num, game_mode_num;
     input >> qw.blockType >> global_status_num >> game_mode_num >> qw.gameTime1 >> qw.hintTime1;
 
+    qw.setLayoutRebuild(game_mode_t(game_mode_num), 0);
     qw.globalStatus = game_status_t(global_status_num);
     qw.gameMode = game_mode_t(game_mode_num);
-
-    qw.setLayoutRebuild(qw.gameMode, 0, 1);
-
-    qw.roles.resize(1);
-    if (qw.gameMode == twoPlayer) {
-        qw.roles.resize(2);
-    }
 
     input >> (*(qw.roles[0]));
     qw.roles[0]->setQL(&qw);

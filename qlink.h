@@ -172,7 +172,7 @@ private:
 
     bool loadFromDisk(QString name);
 
-    void setLayoutRebuild(const game_mode_t &, const int &, const int &);
+    void setLayoutRebuild(const game_mode_t &, const int &);
 
 public:
 

@@ -35,17 +35,17 @@ private:
 public:
     StatusUI(QVBoxLayout *hand, int num);
 
-    void addText(QString str);
+    void addText(const QString &str);
 
-    void setInfo(QString info);
+    void setInfo(const QString &info);
 
-    void setSolNum(int s);
+    void setSolNum(const int &s);
 
-    void setTime(int s);
+    void setTime(const int &s);
 
-    void setScore(int score);
+    void setScore(const int &score);
 
-    void setFont(QLabel *q, int size);
+    void setFont(QLabel *q, const int &size);
 };
 
 #endif // STATUSUI_H
