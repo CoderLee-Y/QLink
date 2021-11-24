@@ -14,7 +14,7 @@ void LineMask::paintEvent(QPaintEvent *) {
     }
 }
 
-int LineMask::addLines(QVector <QLine> &q) {
+int LineMask::addLines(const QVector <QLine> &q) {
     lineGroup.push_back(q);
     seen.push_back(true);
     ++num;
@@ -22,7 +22,7 @@ int LineMask::addLines(QVector <QLine> &q) {
     return (lineGroup.size() - 1);
 }
 
-void LineMask::removeLines(int idx) {
+void LineMask::removeLines(const int &idx) {
     seen[idx] = false;
 }
 

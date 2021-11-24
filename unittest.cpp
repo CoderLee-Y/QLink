@@ -3,7 +3,7 @@
 
 UnitTest::UnitTest() {
     qlink = new QLinkWindow();
-    qlink->setGameMode(onePlayer);
+    qlink->setGameMode(std::move(onePlayer));
     for (int i = 1; i < 9; ++i) {
         for (int j = 1; j < 9; ++j) {
             if (qlink->getBlock(i, j)->status == EMPTY) {
@@ -173,4 +173,4 @@ void UnitTest::cleanupTestCase() {
     delete qlink;
 }
 
-QTEST_MAIN(UnitTest)
+//QTEST_MAIN(UnitTest)

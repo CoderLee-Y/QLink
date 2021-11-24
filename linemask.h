@@ -23,9 +23,9 @@ private:
 public:
     LineMask();
 
-    int addLines(QVector <QLine> &);
+    int addLines(const QVector <QLine> &);
 
-    void removeLines(int idx);
+    void removeLines(const int &idx);
 
 public:
 

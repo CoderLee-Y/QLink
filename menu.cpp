@@ -16,7 +16,7 @@ Menu::Menu() : QWidget() {
     label->setText("QLink");
 
     layout->addWidget(label, 0, Qt::AlignCenter);
-    initBtn(layout);
+    initMenu(layout);
 
 
     this->setLayout(layout);
@@ -25,7 +25,7 @@ Menu::Menu() : QWidget() {
 
 }
 
-void Menu::initBtn(QVBoxLayout *layout) {
+void Menu::initMenu(QVBoxLayout *layout) {
     QVector < QPushButton * > vec;
     QPushButton *singlePlayer = new QPushButton("1 Player");
     QPushButton *doublePlayer = new QPushButton("2 Player");

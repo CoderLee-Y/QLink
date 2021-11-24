@@ -67,11 +67,10 @@ void QLinkWindow::clearAllAndRebuid() {
     gameTime1 = 10;
 }
 
-void QLinkWindow::setLayoutRebuild(game_mode_t s, int q) {
+void QLinkWindow::setLayoutRebuild(const game_mode_t &s, const int &q, const int &new_game) {
     QHBoxLayout *basicLayout;
-    basicLayout = globalStatus == unstarted ?
-                  new QHBoxLayout() : (QHBoxLayout * )
-    this->layout();
+    basicLayout = (globalStatus == unstarted || new_game) ?
+                  new QHBoxLayout() : (QHBoxLayout * )this->layout();
 
     lines = new LineMask();
     lines->setFixedHeight(WINDOWHEIGHT);
@@ -122,11 +121,11 @@ void QLinkWindow::setLayoutRebuild(game_mode_t s, int q) {
     gameMode = s;
 }
 
-void QLinkWindow::setGameMode(game_mode_t s) {
+void QLinkWindow::setGameMode(const game_mode_t &s) {
     // not elegant at all!
     clearAllAndRebuid();
 
-    setLayoutRebuild(s, 1);
+    setLayoutRebuild(s, 1, 0);
 }
 
 void QLinkWindow::removeAllFrom(QLayout *layout) {
@@ -244,7 +243,8 @@ void QLinkWindow::handleReshuffle() {
  * @param status : to be set
  * @param group : to be set, NOTE: if grp==0, seen empty
  */
-void QLinkWindow::setBlockStatus(int i, int j, block_t status, int group) {
+void QLinkWindow::setBlockStatus(const int &i, const int &j,
+                                 const block_t &status, const int &group) {
     blockMap[i][j].type = status;
     blockMap[i][j].group = group;
     blockMap[i][j].color = colorSet[group];
@@ -268,7 +268,7 @@ void QLinkWindow::initBlocks() {
     shuffleBlocks(-1);
 }
 
-void QLinkWindow::shuffleBlocks(int concret_num) {
+void QLinkWindow::shuffleBlocks(const int &concret_num) {
     int tol = 0, threshold = 90;
     if (concret_num != -1) {
         threshold = ((double) concret_num / ((windowHeight - 2) * (windowLength - 2))) * 100;
@@ -478,7 +478,7 @@ void QLinkWindow::startGame() {
  * @param dir
  * Main logic of moving a role
  */
-void QLinkWindow::moveRole(int roleID, direction_t dir) {
+void QLinkWindow::moveRole(const int &roleID, const direction_t &dir) {
     Role *role = (roleID == 1) ? role1 : role2;
     if (role->move(dir) != UNDEF) {
         return;
@@ -553,7 +553,7 @@ moving_action_t QLinkWindow::movingAction(Role *role, int &x, int &y) {
  * @brief QLinkWindow::handleProps
  * @param prop lead to props handler
  */
-void QLinkWindow::handleProps(prop_t prop) {
+void QLinkWindow::handleProps(const prop_t &prop) {
     switch (prop) {
         case plusSec: {
             handlePlusSecond();
@@ -707,8 +707,8 @@ void QLinkWindow::addProps() {
  * @param changeInfo if true, will change info board at the same time
  * @return return is these two point a pair of legal elimate.
  */
-bool QLinkWindow::isLeagalElimate(Role *who, int x1, int y1, int x2, int y2,
-                                  bool changeInfo, QVector<QBlock *> &path) {
+bool QLinkWindow::isLeagalElimate(const Role *who, const int &x1, const int &y1, const int &x2, const int &y2,
+                                  const bool &changeInfo, QVector<QBlock *> &path) {
     int ret;
     path.clear();
 
@@ -743,7 +743,8 @@ bool QLinkWindow::isLeagalElimate(Role *who, int x1, int y1, int x2, int y2,
  * @param path ref to record path and draw lines according to this
  * @return -1: OVER 2 broken lines
  */
-int QLinkWindow::findLine(int x1, int y1, int x2, int y2, direction_t past_dir,
+int QLinkWindow::findLine(const int &x1, const int &y1, const int &x2,
+                          const int &y2, const direction_t &past_dir,
                           QVector<QBlock *> &path) {
     int num = 0;
     // if arrive point, return success
@@ -780,7 +781,7 @@ int QLinkWindow::findLine(int x1, int y1, int x2, int y2, direction_t past_dir,
     return num;
 }
 
-void QLinkWindow::setTime4Line(int lineNum, int msec) {
+void QLinkWindow::setTime4Line(const int &lineNum, const int &msec) {
     linesOnBoard.push_back(lineNum);
     QTimer *tmpTimer = new QTimer(this);
     tmpTimer->setInterval(msec);
@@ -817,7 +818,7 @@ int QLinkWindow::drawAnswers(QVector<QBlock *> &path) {
     return lineNum;
 }
 
-QLine QLinkWindow::getLine(QBlock *a, QBlock *b) {
+QLine QLinkWindow::getLine(const QBlock *a, const QBlock *b) {
     auto itemA = gridLayout->itemAtPosition(a->xIndex, a->yIndex);
     auto itemB = gridLayout->itemAtPosition(b->xIndex, b->yIndex);
 
@@ -835,7 +836,7 @@ QLine QLinkWindow::getLine(QBlock *a, QBlock *b) {
  * @param x,y point requested
  * @return is it in legal area
  */
-bool QLinkWindow::isLegalPoint(int x, int y) {
+bool QLinkWindow::isLegalPoint(const int &x, const int &y) {
     return (x >= 0 && x < windowHeight && y >= 0 && y < windowLength);
 }
 
@@ -847,8 +848,8 @@ bool QLinkWindow::isLegalPoint(int x, int y) {
  * @param y2 end point
  * @return a vector whose len is 4, dfs should use dirs
  */
-QVector <direction_t> QLinkWindow::AStarFindDirection(int x1, int y1,
-                                                      int x2, int y2) {
+QVector <direction_t> QLinkWindow::AStarFindDirection(const int &x1, const int &y1,
+                                                      const int &x2, const int &y2) {
     assert(x1 != x2 || y1 != y2);
     QVector <direction_t> ret;
     if (x1 == x2) {
@@ -911,14 +912,16 @@ QVector <direction_t> QLinkWindow::AStarFindDirection(int x1, int y1,
  * @param vis: visited vector for DFS
  * @return
  */
-bool QLinkWindow::canReachBorder(int x, int y, QMap<QPair<int, int>, bool> vis) {
+bool QLinkWindow::canReachBorder(const int &x, const int &y,
+                                 QMap<QPair<int, int>, bool> vis) {
     static QVector <QPair<int, int>> dirs = {{1,  0},
                                              {-1, 0},
                                              {0,  1},
                                              {0,  -1}};
     if (!isLegalPoint(x, y))
         return false;
-    if (x == 0 || y == 0 || x == windowHeight - 1 || y == windowLength - 1)
+    if (x == 0 || y == 0 ||
+            x == windowHeight - 1 || y == windowLength - 1)
         return true;
 
 
@@ -1085,7 +1088,7 @@ QDataStream &operator>>(QDataStream &input, QLinkWindow &qw) {
     qw.globalStatus = game_status_t(global_status_num);
     qw.gameMode = game_mode_t(game_mode_num);
 
-    qw.setLayoutRebuild(qw.gameMode, 0);
+    qw.setLayoutRebuild(qw.gameMode, 0, 1);
 
     qw.roles.resize(1);
     if (qw.gameMode == twoPlayer) {
@@ -1146,7 +1149,7 @@ QDataStream &operator>>(QDataStream &input, BLOCK_STRUCT &bs) {
     return input;
 }
 
-QBlock *QLinkWindow::getBlock(int x, int y) {
+QBlock *QLinkWindow::getBlock(const int &x, const int &y) {
     return blockMap[x][y].block;
 }
 

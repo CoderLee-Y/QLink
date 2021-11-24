@@ -18,12 +18,12 @@ public:
 
 private:
 
-    void initBtn(QVBoxLayout *layout);
+    void initMenu(QVBoxLayout *layout);
 
 private
     slots:
 
-            void onClickSinglePlayer();
+    void onClickSinglePlayer();
 
     void onClickDoublePlayer();
 
@@ -32,7 +32,7 @@ private
     void onClickExit();
 
     signals:
-            void showGame(QWidget * , game_mode_t);
+    void showGame(QWidget * , game_mode_t);
 
     void showLoad(QWidget *, QString text);
 

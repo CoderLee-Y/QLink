@@ -31,7 +31,6 @@ public:
 
     friend QDataStream &operator>>(QDataStream &, BLOCK_STRUCT &);
 
-
 };
 
 class Role;
@@ -41,7 +40,6 @@ class QLinkWindow : public QWidget {
 
     friend class Role;
 
-// for gridLayout and sub-widget
 private:
     QWidget window;
 
@@ -141,28 +139,32 @@ private:
 
     moving_action_t movingAction(Role *role, int &, int &);
 
-    void setBlockStatus(int i, int j, block_t status, int group);
+    void setBlockStatus(const int &i, const int &j,
+                        const block_t &status, const int &group);
 
-    void moveRole(int roleID, direction_t dir);
+    void moveRole(const int &roleID, const direction_t &dir);
 
-    QVector <direction_t> AStarFindDirection(int x1, int y1, int x2, int y2);
+    QVector <direction_t> AStarFindDirection(const int &x1, const int &y1,
+                                             const int &x2, const int &y2);
 
-    int findLine(int x1, int y1, int x2, int y2, direction_t past_dir,
+    int findLine(const int &x1, const int &y1, const int &x2, const int &y2,
+                 const direction_t &past_dir,
                  QVector<QBlock *> &path);
 
-    bool isLegalPoint(int x, int y);
+    bool isLegalPoint(const int &x, const int &y);
 
-    bool canReachBorder(int x, int y, QMap<QPair<int, int>, bool> vis);
+    bool canReachBorder(const int &x, const int &y,
+                        QMap<QPair<int, int>, bool> vis);
 
-    void handleProps(prop_t prop);
+    void handleProps(const prop_t &prop);
 
-    void shuffleBlocks(int);
+    void shuffleBlocks(const int&);
 
     int drawAnswers(QVector<QBlock *> &);
 
-    void setTime4Line(int lineNum, int msec);
+    void setTime4Line(const int &lineNum, const int &msec);
 
-    QLine getLine(QBlock *, QBlock *);
+    QLine getLine(const QBlock *, const QBlock *);
 
     void removeAllFrom(QLayout *layout);
 
@@ -170,15 +172,15 @@ private:
 
     bool loadFromDisk(QString name);
 
-    void setLayoutRebuild(game_mode_t, int);
+    void setLayoutRebuild(const game_mode_t &, const int &, const int &);
 
 public:
 
     QLinkWindow(QWidget *parent = nullptr, int length = 10, int height = 10);
 
-    void setGameMode(game_mode_t s);
+    void setGameMode(const game_mode_t &s);
 
-    QBlock *getBlock(int x, int y);
+    QBlock *getBlock(const int &x, const int &y);
 
     void startFromFile(QString fileName);
 
@@ -194,7 +196,7 @@ protected:
 private
     slots:
 
-            void handleKeyPressed();
+    void handleKeyPressed();
 
     void handlePlayerTimer();
 
@@ -204,7 +206,7 @@ private
 
     signals:
 
-            void goToMenu(QWidget * );
+    void goToMenu(QWidget * );
 
 public:
 
@@ -217,9 +219,9 @@ public:
 
     QVector<Role *> roles;
 
-
-    bool isLeagalElimate(Role *, int x1, int y1, int x2,
-                         int y2, bool changeInfo, QVector<QBlock *> &paths);
+    // Just public for test
+    bool isLeagalElimate(const Role *, const int &x1, const int &y1, const int &x2,
+                         const int &y2, const bool &changeInfo, QVector<QBlock *> &paths);
 };
 
 

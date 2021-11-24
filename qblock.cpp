@@ -1,7 +1,7 @@
 #include "qblock.h"
 
 
-QBlock::QBlock(int len, int height, QWidget *parent) : QLabel(parent) {
+QBlock::QBlock(const int &len, const int &height, QWidget *parent) : QLabel(parent) {
     // Default size
     blockWidth = (WINDOWLEN / len);
     blockHeight = (WINDOWHEIGHT / height);
@@ -63,7 +63,7 @@ void QBlock::paintEvent(QPaintEvent *event) {
     QLabel::paintEvent(event);
 }
 
-void QBlock::setBlockSize(int idx) {
+void QBlock::setBlockSize(const int &idx) {
     blockSize = idx;
     QSize size;
     if (idx == 0) {
@@ -79,16 +79,16 @@ void QBlock::setBlockSize(int idx) {
 }
 
 
-void QBlock::setColor(QColor color, QColor wordColor) {
+void QBlock::setColor(const QColor &color, const QColor &wordColor) {
     this->blockColor = color;
     this->wordColor = wordColor;
 }
 
-void QBlock::setStatus(block_t status) {
+void QBlock::setStatus(const block_t &status) {
     this->status = status;
 }
 
-void QBlock::setIndex(int x, int y) {
+void QBlock::setIndex(const int &x, const int &y) {
     this->xIndex = x;
     this->yIndex = y;
 }

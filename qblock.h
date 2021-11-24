@@ -29,24 +29,25 @@ public:
 
     prop_t prop_type;
 
-private:
-
-    void setBlockSize(int idx);
-
-public:
     int blockSize;
 
-    QBlock(int len, int height, QWidget *parent);
+private:
+
+    void setBlockSize(const int &idx);
+
+public:
+
+    QBlock(const int &len, const int &height, QWidget *parent);
 
     QBlock();
 
     void paintEvent(QPaintEvent *event) override;
 
-    void setColor(QColor color, QColor wordColor);
+    void setColor(const QColor &color, const QColor &wordColor);
 
-    void setStatus(block_t status);
+    void setStatus(const block_t &status);
 
-    void setIndex(int x, int y);
+    void setIndex(const int &x, const int &y);
 
 public:
 

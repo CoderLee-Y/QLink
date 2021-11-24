@@ -28,8 +28,7 @@ private:
 private
     slots:
 
-            void showGame(QWidget * from, game_mode_t
-    s);
+    void showGame(QWidget * from, game_mode_t s);
 
     void showMenu(QWidget *from);
 
