@@ -64,7 +64,7 @@ void QLinkWindow::clearAllAndRebuid() {
     handleConflictBlocks();
 
     keyPressedTimer->start();
-    gameTime1 = 10;
+    gameTime1 = 30;
 }
 
 void QLinkWindow::setLayoutRebuild(const game_mode_t &s, const int &q) {
